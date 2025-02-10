@@ -116,144 +116,146 @@ class EscanerPDF417:
             self.root.title("Escáner de Documentos PDF417")
             
         # Obtener dimensiones de la pantalla
-        pantalla_ancho = self.root.winfo_screenwidth()
-        pantalla_alto = self.root.winfo_screenheight()
+            pantalla_ancho = self.root.winfo_screenwidth()
+            pantalla_alto = self.root.winfo_screenheight()
             
             # Establecer tamaño de ventana (90% de la pantalla)
-        ventana_ancho = int(pantalla_ancho * 0.9)
-        ventana_alto = int(pantalla_alto * 0.9)
+            ventana_ancho = int(pantalla_ancho * 0.9)
+            ventana_alto = int(pantalla_alto * 0.9)
             
-        self.root.geometry(f"{ventana_ancho}x{ventana_alto}")
-        self.root.configure(bg="#2c3e50")
+            self.root.geometry(f"{ventana_ancho}x{ventana_alto}")
+            self.root.configure(bg="#2c3e50")
             
             # Centrar ventana
-        pos_x = (pantalla_ancho - ventana_ancho) // 2
-        pos_y = (pantalla_alto - ventana_alto) // 2
-        self.root.geometry(f"{ventana_ancho}x{ventana_alto}+{pos_x}+{pos_y}")
+            pos_x = (pantalla_ancho - ventana_ancho) // 2
+            pos_y = (pantalla_alto - ventana_alto) // 2
+            self.root.geometry(f"{ventana_ancho}x{ventana_alto}+{pos_x}+{pos_y}")
 
             # Variables de control
-        self.escaneando = False
-        self.cap = None
-        self.foto = None
+            self.escaneando = False
+            self.cap = None
+            self.foto = None
 
             # Crear interfaz
-        self.crear_interfaz()
+            self.crear_interfaz()
 
         def crear_interfaz(self):
                 """Crea la interfaz gráfica"""
 
                 # Marco principal
-             marco_principal = ttk.Frame(self.root)
-             marco_principal.pack(fill="both", expand=True, padx=10, pady=10)
+                marco_principal = ttk.Frame(self.root)
+                marco_principal.pack(fill="both", expand=True, padx=10, pady=10)
 
                 # Título
-            titulo = ttk.Label(marco_principal, text="ESCÁNER DE DOCUMENTOS PDF417 - AUTOMÁTICO",
+                titulo = ttk.Label(marco_principal, text="ESCÁNER DE DOCUMENTOS PDF417 - AUTOMÁTICO",
                             font=("Helvetica", 24, "bold"))
-            titulo.grid(row=0, column=0, columnspan=2, pady=(0, 10))
+                titulo.grid(row=0, column=0, columnspan=2, pady=(0, 10))
 
                 # ============ PANEL IZQUIERDO: VIDEO ============
-            marco_video = ttk.LabelFrame(marco_principal, text="Vista de Cámara", padding=10)
-            marco_video.grid(row=1, column=0, sticky="nsew", padx=(0, 5), pady=5)
+                marco_video = ttk.LabelFrame(marco_principal, text="Vista de Cámara", padding=10)
+                marco_video.grid(row=1, column=0, sticky="nsew", padx=(0, 5), pady=5)
 
                 # Label para el video
-            self.label_video = ttk.Label(marco_video, background="#000000")
-            self.label_video.pack(fill="both", expand=True)
+                self.label_video = ttk.Label(marco_video, background="#000000")
+                self.label_video.pack(fill="both", expand=True)
 
                 # ============ PANEL DERECHO: INFORMACIÓN ============
-            marco_info = ttk.LabelFrame(marco_principal, text="Información de Escaneo", padding=15)
-            marco_info.grid(row=1, column=1, sticky="nsew", padx=(5, 0), pady=5)
+                marco_info = ttk.LabelFrame(marco_principal, text="Información de Escaneo", padding=15)
+                marco_info.grid(row=1, column=1, sticky="nsew", padx=(5, 0), pady=5)
 
                 # Información de estado
-            ttk.Label(marco_info, text="DETECCIONES:", font=("Helvetica", 12, "bold")).pack(anchor="w", pady=(10, 5))
+                ttk.Label(marco_info, text="DETECCIONES:", font=("Helvetica", 12, "bold")).pack(anchor="w", pady=(10, 5))
 
-            self.text_info = scrolledtext.ScrolledText(marco_info, height=25, width=40,
+                self.text_info = scrolledtext.ScrolledText(marco_info, height=25, width=40,
                                                     font=("Courier", 10), wrap="word")
-            self.text_info.pack(fill="both", expand=True, pady=10)
+                self.text_info.pack(fill="both", expand=True, pady=10)
 
                 # Configurar estilos de texto
-            self.text_info.tag_configure("titulo", foreground="green", font=("Courier", 11, "bold"))
-            self.text_info.tag_configure("error", foreground="red", font=("Courier", 10, "bold"))
-            self.text_info.tag_configure("exito", foreground="lightgreen", font=("Courier", 10, "bold"))
-            self.text_info.tag_configure("dato", foreground="cyan", font=("Courier", 10))
-            self.text_info.tag_configure("separador", foreground="yellow")
+                self.text_info.tag_configure("titulo", foreground="green", font=("Courier", 11, "bold"))
+                self.text_info.tag_configure("error", foreground="red", font=("Courier", 10, "bold"))
+                self.text_info.tag_configure("exito", foreground="lightgreen", font=("Courier", 10, "bold"))
+                self.text_info.tag_configure("dato", foreground="cyan", font=("Courier", 10))
+                self.text_info.tag_configure("separador", foreground="yellow")
 
-            self.text_info.config(state="disabled", bg="#1e1e1e", fg="#00ff00")
+                self.text_info.config(state="disabled", bg="#1e1e1e", fg="#00ff00")
 
                 # Configurar pesos de grid
-            marco_principal.columnconfigure(0, weight=2)
-            marco_principal.columnconfigure(1, weight=1)
-            marco_principal.rowconfigure(1, weight=1)
+                marco_principal.columnconfigure(0, weight=2)
+                marco_principal.columnconfigure(1, weight=1)
+                marco_principal.rowconfigure(1, weight=1)
 
                 # Botón para cerrar/volver (mantener siempre disponible)
-            boton_cerrar = ttk.Button(marco_info, text="Volver / Cerrar Escáner", command=self.on_closing)
-            boton_cerrar.pack(pady=(8, 0))
+                boton_cerrar = ttk.Button(marco_info, text="Volver / Cerrar Escáner", command=self.on_closing)
+                boton_cerrar.pack(pady=(8, 0))
 
                 # Iniciar captura de video
-            self.iniciar_captura()
+                self.iniciar_captura()
 
         def iniciar_captura(self):
+                
                 """Inicia la captura de video de la cámara"""
-            try:
-                self.cap = cv2.VideoCapture(0)
-                self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-                self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-                    
-                self.agregar_info("SISTEMA INICIALIZADO", "exito")
-                self.agregar_info(f"Resolución: {int(self.cap.get(3))} x {int(self.cap.get(4))}", "dato")
-                    
-                    # Iniciar thread de video
-                thread = threading.Thread(target=self._actualizar_video, daemon=True)
-                thread.start()
+                try:
+                    self.cap = cv2.VideoCapture(0)
+                    self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+                    self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+                        
+                    self.agregar_info("SISTEMA INICIALIZADO", "exito")
+                    self.agregar_info(f"Resolución: {int(self.cap.get(3))} x {int(self.cap.get(4))}", "dato")
+                        
+                        # Iniciar thread de video
+                    thread = threading.Thread(target=self._actualizar_video, daemon=True)
+                    thread.start()
 
-            except Exception as e:
-                self.agregar_info(f"Error al inicializar cámara: {e}", "error")
-                messagebox.showerror("Error", f"No se pudo inicializar la cámara: {e}")
+                except Exception as e:
+                    self.agregar_info(f"Error al inicializar cámara: {e}", "error")
+                    messagebox.showerror("Error", f"No se pudo inicializar la cámara: {e}")
 
         def _actualizar_video(self):
+                
                 """Actualiza el video en la interfaz y escanea automáticamente"""
                 # Recuadro
-            x1, y1 = 500, 150
-            x2, y2 = 1700, 800
-            contador_frames = 0
-            intervalo_escaneo = 5  # Escanear cada 5 frames
+                x1, y1 = 500, 150
+                x2, y2 = 1700, 800
+                contador_frames = 0
+                intervalo_escaneo = 5  # Escanear cada 5 frames
 
-            while self.cap is not None:
-                try:
-                    if self.cap is None:
+                while self.cap is not None:
+                    try:
+                        if self.cap is None:
+                            break
+
+                        ret, frame = self.cap.read()
+                        if not ret:
+                            break
+
+                            # Dibujar recuadro
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
+
+                            # Redimensionar para mostrar en tkinter
+                        frame_resizado = cv2.resize(frame, (640, 360))
+                            
+                            # Convertir BGR a RGB
+                        frame_rgb = cv2.cvtColor(frame_resizado, cv2.COLOR_BGR2RGB)
+
+                            # Convertir a PhotoImage
+                        img = Image.fromarray(frame_rgb)
+                        photo = ImageTk.PhotoImage(img)
+
+                            # Actualizar label
+                        self.label_video.config(image=photo)
+                        self.label_video.image = photo
+
+                        self.root.update_idletasks()
+
+                            # Realizar escaneo automático cada N frames
+                        contador_frames += 1
+                        if contador_frames >= intervalo_escaneo:
+                            contador_frames = 0
+                            self._escaneo_automatico(frame, x1, y1, x2, y2)
+                            
+                    except Exception as e:
+                        print(f"Error en actualización de video: {e}")
                         break
-
-                    ret, frame = self.cap.read()
-                    if not ret:
-                        break
-
-                        # Dibujar recuadro
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
-
-                        # Redimensionar para mostrar en tkinter
-                    frame_resizado = cv2.resize(frame, (640, 360))
-                        
-                        # Convertir BGR a RGB
-                    frame_rgb = cv2.cvtColor(frame_resizado, cv2.COLOR_BGR2RGB)
-
-                        # Convertir a PhotoImage
-                    img = Image.fromarray(frame_rgb)
-                    photo = ImageTk.PhotoImage(img)
-
-                        # Actualizar label
-                    self.label_video.config(image=photo)
-                    self.label_video.image = photo
-
-                    self.root.update_idletasks()
-
-                        # Realizar escaneo automático cada N frames
-                    contador_frames += 1
-                    if contador_frames >= intervalo_escaneo:
-                        contador_frames = 0
-                        self._escaneo_automatico(frame, x1, y1, x2, y2)
-                        
-                except Exception as e:
-                    print(f"Error en actualización de video: {e}")
-                    break
 
         def _escaneo_automatico(self, frame, x1, y1, x2, y2):
             """Realiza escaneo automático sin bloquear la interfaz"""
@@ -289,18 +291,19 @@ class EscanerPDF417:
                 pass  # Ignorar errores de escaneo para no saturar el log
 
         def agregar_info(self, texto, tag="dato"):
+                
                 """Agrega información al panel de texto"""
-            self.text_info.config(state="normal")
-            self.text_info.insert("end", texto + "\n", tag)
-            self.text_info.see("end")
-            self.text_info.config(state="disabled")
+                self.text_info.config(state="normal")
+                self.text_info.insert("end", texto + "\n", tag)
+                self.text_info.see("end")
+                self.text_info.config(state="disabled")
 
         def on_closing(self):
                 """Maneja el cierre de la ventana"""
-            if self.cap is not None:
-                self.cap.release()
-            cv2.destroyAllWindows()
-            self.root.destroy()
+                if self.cap is not None:
+                    self.cap.release()
+                cv2.destroyAllWindows()
+                self.root.destroy()
 
 
 def main():

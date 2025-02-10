@@ -253,3 +253,11 @@ Segmentation fault (core dumped)
 
 
 >>>>>>> raspb2
+
+-Automatico-de-prestamos-FABLAB/main.py
+Traceback (most recent call last):
+  File "/home/fablabean/Desktop/Prácticas/Casillero-Automatico-de-prestamos-FABLAB/main.py", line 3, in <module>
+    from mcp_control import leer_entrada
+  File "/home/fablabean/Desktop/Prácticas/Casillero-Automatico-de-prestamos-FABLAB/mcp_control.py", line 11, in <module>
+    bus.write_byte_data(MCP_ADDR, IODIRA, 0XFF)
+OSError: [Errno 121] Remote I/O error

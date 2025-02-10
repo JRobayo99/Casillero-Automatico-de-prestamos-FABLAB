@@ -23,25 +23,16 @@ for i in range(16):
 stateA= [False]*16
 stateB= [False]*16
 
-def toggle_A(pin, boton):
-    stateA[pin] = not stateA[pin]
-
-    if stateA[pin]:
-        pinsA[pin].value = False
-        boton.config(bg="green") 
+def activar_por_numero(n):
+    if n < 1 or n > 32:
+        print("Número fuera de rango")
+        return
+    if n <= 16:
+        pinsA[n-1].value = False
+        
     else:
-        pinsA[pin].value = True
-        boton.config(bg="gray")
-
-def toggle_B(pin, boton):
-    stateB[pin] = not stateB[pin]
-
-    if stateB[pin]:
-        pinsB[pin].value = False
-        boton.config(bg="green") 
-    else:
-        pinsB[pin].value = True
-        boton.config(bg="gray")
+        pinsB[n-17].value = False
+        
 
 root = tk.Tk()
 root.title("Control de MCP23017 (0x23)(0x27)")
@@ -67,6 +58,5 @@ for i in range(16):
     b = tk.Button(frameB, text=f"B{i}", width=6, height=2, bg="gray",
                   command=lambda p=i, btn=None: None)
     b.grid(row=i//8, column=i%8, padx=5, pady=5)
-    b.config(command=lambda p=i, btn=b: toggle_B(p, btn))
 
 root.mainloop()
