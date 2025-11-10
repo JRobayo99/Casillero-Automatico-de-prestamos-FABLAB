@@ -3,7 +3,7 @@ import pytesseract
 
 import re
 
-cuadro = 100|
+cuadro = 100
 doc = 0
 
 cap = cv2.VideoCapture(0)
