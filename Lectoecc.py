@@ -1,10 +1,13 @@
 import cv2
 import pytesseract
-
+import os
 import re
 
 cuadro = 100
 doc = 0
+carpeta="capturas"
+os.makedirs(carpeta, exist_ok=True)
+
 
 cap = cv2.VideoCapture(0)
 cap.set(3, 1280)
@@ -56,6 +59,9 @@ while True:
 
 
     if t == 83 or t ==115:
+        ruta= os.path.join(carpeta, 'captura_id.jpg')
+        cv2.imwrite(ruta, frame)
+        print("Imagen guardada en ", ruta)
         texto(frame)
         break
 
