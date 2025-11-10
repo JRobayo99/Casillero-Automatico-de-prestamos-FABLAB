@@ -37,7 +37,7 @@ def texto(imagen):
 while True:
     ret, frame = cap.read()
     
-    cv2.putText(frame, 'Ubique el documento de idintidad' , (458, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.71, (0, 255, 0), 2)
+    cv2.putText(frame, 'Ubique el documento de identidad' , (458, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.71, (0, 255, 0), 2)
     cv2.rectangle (frame, (cuadro, cuadro), ( 1280 - cuadro, 720 - cuadro), (0, 255, 0), 2)
 
     if doc == 0:
@@ -50,18 +50,14 @@ while True:
 
 
 
-
     t= cv2.waitKey(5)
     cv2.imshow('ID INTELIGENTE', frame)
 
 
 
-    if t == 27:
-
-        break
-
-    elif t == 83 or t ==115:
+    if t == 83 or t ==115:
         texto(frame)
+        break
 
 cap.release()
 cv2.destroyAllWindows()
