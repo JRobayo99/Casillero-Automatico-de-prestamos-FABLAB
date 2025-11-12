@@ -40,12 +40,12 @@ def texto(imagen):
 while True:
     ret, frame = cap.read()
     
-    cv2.putText(frame, 'Ubique el documento de identidad' , (458, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.71, (0, 255, 0), 2)
+    cv2.putText(frame, '' , (458, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.71, (0, 255, 0), 2)
     cv2.rectangle (frame, (cuadro, cuadro), ( 1280 - cuadro, 720 - cuadro), (0, 255, 0), 2)
 
     if doc == 0:
 
-        cv2.putText(frame, 'PRESIONA S PARA IDENTIFICAR' , (470, 750 - cuadro), cv2.FONT_HERSHEY_SIMPLEX, 0.71, (0, 255, 0), 2)
+        cv2.putText(frame, '' , (470, 750 - cuadro), cv2.FONT_HERSHEY_SIMPLEX, 0.71, (0, 255, 0), 2)
 
     elif doc == 1:
         cv2.putText(frame, 'IDENTIFICACION COLOMBIANA', (470, 750 - cuadro), cv2.FONT_HERSHEY_SIMPLEX, 0.71, (0, 255, 255),2)
