@@ -9,19 +9,37 @@ def clear_content():
 def show_dashboard():
 
     clear_content()
+<<<<<<< HEAD
     label = tk.Label(content, text=("🔧🪛⚙️🛠️ Prestamo y devolución de herramientas"), font=("Arial", 30), bg="#eeeeee")
     label.pack(expand=True)
 
+=======
+    label = tk.Label(content, text=("🔧🪛⚙️🛠️ Préstamo y devolución de herramientas"), font=("Arial", 30), bg="#eeeeee")
+    label.pack(pady=20)
+
+    btn_prestamo = tk.Button(content, text="Realizar Préstamo", font=("Arial", 20), bg="#00adb5", command=lambda: print("Préstamo realizado"))
+    btn_prestamo.pack(pady=20, ipadx=10, ipady=10)
+
+    btn_prestamo = tk.Button(content, text="Devolver herramienta", font=("Arial", 20), bg="#00adb5", command=lambda: print("Devolución realizada"))
+    btn_prestamo.pack(pady=20, ipadx=10, ipady=10)
+>>>>>>> raspb
 def show_profile():
 
     clear_content()
     label = tk.Label(content, text=("🪪✅ Ingreso de usuarios "), font=("Arial", 30), bg="#eeeeee")
     label.pack(expand=True)
 
+<<<<<<< HEAD
     tk.Label(content, text="Nombre", bg="#eeeeee").pack(anchor="w", padx=20)
     tk.Entry(content).pack(padx=20, fill="x")
 
     tk.Label(content, text="Email", bg="#eeeeee").pack(anchor="w", padx=20, pady=(10, 0))
+=======
+    tk.Label(content, text="Usuario", bg="#eeeeee").pack(anchor="w", padx=20)
+    tk.Entry(content).pack(padx=20, fill="x")
+
+    tk.Label(content, text="Contraseña", bg="#eeeeee").pack(anchor="w", padx=20, pady=(10, 0))
+>>>>>>> raspb
     tk.Entry(content).pack(padx=20, fill="x")
 
 def show_picture():
