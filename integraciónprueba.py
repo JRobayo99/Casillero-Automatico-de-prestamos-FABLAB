@@ -6,31 +6,45 @@ def clear_content():
     for widget in content.winfo_children():
         widget.destroy()
 
+def btn_scandoc():
+    clear_content()
+    label = tk.Label(content, text=("📄📷 Escaneo de documento para préstamo"), font=("Arial", 30), bg="#eeeeee")
+    label.pack(pady=20)
+    tk.Button(content, text=" ↩️​ Volver", command=btn_presta).pack(pady=20)
+
+def btn_presta():
+
+    clear_content()
+    label = tk.Label(content, text=("🔧🪛⚙️🛠️ Préstamo de herramientas"), font=("Arial", 30), bg="#eeeeee")
+    label.pack(pady=20)
+    
+    btn_scanner_doc = tk.Button(content, text="Realizar Préstamo", font=("Arial", 20), bg="#00adb5", command=btn_scandoc)
+    btn_scanner_doc.pack(pady=20, ipadx=10, ipady=10)
+
+    tk.Button(content, text=" ↩️​ Volver", command=show_dashboard).pack(pady=20)
+        
+
+def btn_devolver():
+
+    clear_content()
+    label = tk.Label(content, text=("🔧🪛⚙️🛠️ Devolución de herramientas"), font=("Arial", 30), bg="#eeeeee")
+    label.pack(pady=20)
+    tk.Button(content, text=" ↩️​ Volver", command=show_dashboard).pack(pady=20)
+
 def show_dashboard():
 
     clear_content()
     label = tk.Label(content, text=("🔧🪛⚙️🛠️ Préstamo y devolución de herramientas"), font=("Arial", 30), bg="#eeeeee")
     label.pack(pady=20)
 
-    btn_prestamo = tk.Button(content, text="Realizar Préstamo", font=("Arial", 20), bg="#00adb5", command=lambda: print("Préstamo realizado"))
+    btn_prestamo = tk.Button(content, text="Realizar Préstamo", font=("Arial", 20), bg="#00adb5", command=btn_presta)
     btn_prestamo.pack(pady=20, ipadx=10, ipady=10)
 
-    btn_devolucion = tk.Button(content, text="Devolver herramienta", font=("Arial", 20), bg="#00adb5", command=lambda: print("Devolución realizada"))
+    btn_devolucion = tk.Button(content, text="Devolver herramienta", font=("Arial", 20), bg="#00adb5", command=btn_devolver)
     btn_devolucion.pack(pady=20, ipadx=10, ipady=10)
 
-def btn_prestamo():
 
-    clear_content()
-    label = tk.Label(content, text=("🔧🪛⚙️🛠️ Préstamo de herramientas"), font=("Arial", 30), bg="#eeeeee")
-    label.pack(pady=20)
-    print("Préstamo realizado")
-
-def btn_devolucion():
-
-    clear_content
-    label = tk.Label(content, text=("🔧🪛⚙️🛠️ Devolución de herramientas"), font=("Arial", 30), bg="#eeeeee")
-    label.pack(pady=20)
-    print("Devolución realizada")
+        
 
 def show_profile():
 
@@ -76,8 +90,6 @@ sidebar.pack(side="left", fill="y")
 
 menu_items =[
     ("🔧🪛⚙️🛠️","Prestamo y devolución de herramientas",show_dashboard),
-    ("🔧🪛⚙️🛠️","Prestamo",btn_prestamo),
-    ("🔧🪛⚙️🛠️","Devolución de herramientas",btn_devolucion),
     ("📅🛠️⚙️","Hisorial de prestamos",show_picture),
     ("🪪✅","Ingreso de usuarios ",show_profile),
     ("Info","tR", show_info),
