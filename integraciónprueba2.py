@@ -106,21 +106,37 @@ def iniciar_lector_pdf417(callback):
 
     threading.Thread(target=worker).start()
 
-# -------------------- ESCANEO DE DOCUMENTO --------------------
+def confirmar_prestamo():
+    messagebox.showinfo("✅ Préstamo", "Préstamo confirmado.")
+    show_dashboard()   
+
+# -------------------- ESCANEO DE DOCUMENTO -------------------
 def callback_datos_cedula(data):
     clear_content()
 
     tk.Label(content, text="Datos de la cédula", font=("Arial", 30), bg="#eeeeee").pack(pady=20)
 
+    # Mostrar los datos leídos
     for k, v in data.items():
         tk.Label(content, text=f"{k}: {v}", font=("Arial", 18), bg="#eeeeee").pack()
 
+    # Mostrar herramientas seleccionadas
     tk.Label(content, text="Herramientas prestadas:", font=("Arial", 22), bg="#eeeeee").pack(pady=20)
+
     for h in herramientas_seleccionadas:
         tk.Label(content, text=f"• {h}", font=("Arial", 18), bg="#eeeeee").pack()
 
-    tk.Button(content, text="✔ Confirmar préstamo", bg="#00adb5").pack(pady=25)
+    # Botón confirmar préstamo (AQUÍ SE AGREGA LO NUEVO)
+    tk.Button(content,
+              text="✔ Confirmar Préstamo",
+              bg="#00adb5",
+              font=("Arial", 20),
+              command=confirmar_prestamo
+    ).pack(pady=25)
+
+    # Botón volver
     tk.Button(content, text="↩ Volver", command=show_dashboard).pack(pady=10)
+
 
 
 def iniciar_scan():
