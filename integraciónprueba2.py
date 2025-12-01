@@ -3,11 +3,28 @@ import tkinter as tk
 import cv2
 import zxingcpp
 import re
+import json
+import os
 from tkinter import messagebox
 
-
+DB_FILE = "prestamos_db.json"   
+datos_cedula_global = {}
 # Lista global donde se guardarán los préstamos seleccionados
 herramientas_seleccionadas = []
+
+prestamos_activos = {} 
+ultimo_escaneo = {}
+
+def cargar_prestamos():
+    if not os.path.exists(DB_FILE):
+        return {}
+    with open(DB_FILE, "r") as f:
+        return json.load(f)
+
+def guardar_prestamos(data):
+    with open(DB_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
 
 def clear_content():
     for widget in content.winfo_children():
@@ -106,35 +123,127 @@ def iniciar_lector_pdf417(callback):
 
     threading.Thread(target=worker).start()
 
+def callback_devolucion(data):
+    ced = data.get("cedula")
+
+    if ced not in prestamos_activos:
+        messagebox.showerror("Sin préstamos", "Esta cédula no tiene préstamos activos.")
+        show_dashboard()
+        return
+
+    registro = prestamos_activos[ced]
+
+    clear_content()
+    tk.Label(content, text="Devolución de herramientas", font=("Arial", 30), bg="#eeeeee").pack(pady=20)
+
+    usuario = f"{registro['apellido1']} {registro['apellido2']} {registro['nombre']}"
+    tk.Label(content, text=f"Usuario: {usuario}", font=("Arial", 22), bg="#eeeeee").pack(pady=10)
+
+    tk.Label(content, text="Seleccione las herramientas a devolver:", 
+             font=("Arial", 20), bg="#eeeeee").pack(pady=10)
+
+    check_vars = []
+    for h in registro["herramientas"]:
+        var = tk.BooleanVar()
+        chk = tk.Checkbutton(content, text=h, variable=var, font=("Arial", 18), bg="#eeeeee")
+        chk.pack(anchor="w", padx=20)
+        check_vars.append((h, var))
+
+    # BOTÓN: Devolver seleccionadas
+    def devolver_seleccion():
+        devolviendo = [h for h, var in check_vars if var.get()]
+
+        if not devolviendo:
+            messagebox.showwarning("Nada seleccionado", "Seleccione al menos una herramienta.")
+            return
+
+        # Remover herramientas devueltas
+        for h in devolviendo:
+            registro["herramientas"].remove(h)
+
+        # Si ya no quedan herramientas → eliminar préstamo
+        if not registro["herramientas"]:
+            del prestamos_activos[ced]
+
+        messagebox.showinfo("✔ Devolución", "Herramientas devueltas correctamente.")
+        show_dashboard()
+
+    tk.Button(content, text="✔ Devolver seleccionadas", bg="#00adb5", 
+              font=("Arial", 20), command=devolver_seleccion).pack(pady=20)
+
+    # BOTÓN: Devolver todas
+    def devolver_todo():
+        del prestamos_activos[ced]
+        messagebox.showinfo("✔ Devolución Completa", "Todas las herramientas fueron devueltas.")
+        show_dashboard()
+
+    tk.Button(content, text="✔ Devolver todas", bg="#00adb5",
+              font=("Arial", 20), command=devolver_todo).pack(pady=10)
+
+    tk.Button(content, text="↩ Volver", command=show_dashboard).pack(pady=20)
+
+
 def confirmar_prestamo():
+    global ultimo_escaneo
+
+    ced = ultimo_escaneo.get("cedula", None)
+    if not ced:
+        messagebox.showerror("Error", "No hay cédula detectada.")
+        return
+
+    prestamos_activos[ced] = {
+        "nombre": ultimo_escaneo.get("nombre", ""),
+        "apellido1": ultimo_escaneo.get("apellido1", ""),
+        "apellido2": ultimo_escaneo.get("apellido2", ""),
+        "herramientas": herramientas_seleccionadas.copy()
+    }
+
+
     messagebox.showinfo("✅ Préstamo", "Préstamo confirmado.")
     show_dashboard()   
 
+def confirmar_devolucion(cedula):
+    db = cargar_prestamos()
+    db[cedula]["estado"] = "devuelto"
+    guardar_prestamos(db)
+
+    messagebox.showinfo("✔ Devolución", "Herramientas devueltas correctamente.")
+    show_dashboard()
+
+
+
+def iniciar_scan_devolucion():
+    iniciar_lector_pdf417(callback_devolucion)
+
+
 # -------------------- ESCANEO DE DOCUMENTO -------------------
 def callback_datos_cedula(data):
+    global datos_cedula_global
+    global ultimo_escaneo   # ← NECESARIO
+
+    datos_cedula_global = data
+    ultimo_escaneo = data  # Guardar datos para confirmación
+
     clear_content()
 
     tk.Label(content, text="Datos de la cédula", font=("Arial", 30), bg="#eeeeee").pack(pady=20)
 
-    # Mostrar los datos leídos
     for k, v in data.items():
         tk.Label(content, text=f"{k}: {v}", font=("Arial", 18), bg="#eeeeee").pack()
 
-    # Mostrar herramientas seleccionadas
     tk.Label(content, text="Herramientas prestadas:", font=("Arial", 22), bg="#eeeeee").pack(pady=20)
 
     for h in herramientas_seleccionadas:
         tk.Label(content, text=f"• {h}", font=("Arial", 18), bg="#eeeeee").pack()
 
-    # Botón confirmar préstamo (AQUÍ SE AGREGA LO NUEVO)
-    tk.Button(content,
-              text="✔ Confirmar Préstamo",
-              bg="#00adb5",
-              font=("Arial", 20),
-              command=confirmar_prestamo
+    tk.Button(
+        content,
+        text="✔ Confirmar Préstamo",
+        bg="#00adb5",
+        font=("Arial", 20),
+        command=confirmar_prestamo
     ).pack(pady=25)
 
-    # Botón volver
     tk.Button(content, text="↩ Volver", command=show_dashboard).pack(pady=10)
 
 
@@ -197,9 +306,16 @@ def btn_presta():
 # -------------------- DEVOLUCIÓN --------------------
 def btn_devolver():
     clear_content()
-    label = tk.Label(content, text="🔧🪛⚙️🛠️ Devolución de herramientas", font=("Arial", 30), bg="#eeeeee")
-    label.pack(pady=20)
-    tk.Button(content, text=" ↩️​ Volver", command=show_dashboard).pack(pady=20)
+    tk.Label(content, text="Escanear cédula para devolución", font=("Arial", 30), bg="#eeeeee").pack(pady=20)
+
+    tk.Button(content, text="📸 Escanear documento",
+              font=("Arial", 20), bg="#00adb5",
+              command=lambda: iniciar_lector_pdf417(callback_devolucion)
+    ).pack(pady=20)
+
+    tk.Button(content, text="↩ Volver", command=show_dashboard).pack(pady=20)
+
+
 
 # -------------------- DASHBOARD --------------------
 def show_dashboard():
