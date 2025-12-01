@@ -1,8 +1,10 @@
 import threading
+import tkinter as tk
 import cv2
 import zxingcpp
 import re
 from tkinter import messagebox
+
 
 # Lista global donde se guardarán los préstamos seleccionados
 herramientas_seleccionadas = []
