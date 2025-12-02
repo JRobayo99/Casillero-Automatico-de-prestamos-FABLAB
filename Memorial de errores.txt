@@ -7,3 +7,7 @@ E: Unable to locate package python3.10
 E: Couldn't find any package by glob 'python3.10'
 E: Unable to locate package python3.10-venv
 E: Couldn't find any package by glob 'python3.10-venv'
+
+pip install adafruit-circuitpython-mcp230xx
+modprobe: FATAL: Module i2c_bm2835 not found in directory /lib/modules/6.8.0-1041-raspi
+
