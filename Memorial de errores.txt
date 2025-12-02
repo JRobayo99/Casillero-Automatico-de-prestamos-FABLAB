@@ -11,3 +11,12 @@ E: Couldn't find any package by glob 'python3.10-venv'
 pip install adafruit-circuitpython-mcp230xx
 modprobe: FATAL: Module i2c_bm2835 not found in directory /lib/modules/6.8.0-1041-raspi
 
+    If you wish to install a non-Debian packaged Python application,
+    it may be easiest to use pipx install xyz, which will manage a
+    virtual environment for you. Make sure you have pipx installed.
+    
+    See /usr/share/doc/python3.12/README.venv for more information.
+
+note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
+hint: See PEP 668 for the detailed specification.
+
