@@ -93,35 +93,28 @@ def iniciar_lector_pdf417(callback):
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.imshow("Captura Cédula", frame)
 
-            key = cv2.waitKey(1)
+            cv2.waitKey(1)
 
-            if key == ord("s"):
-                cropped = frame[y1:y2, x1:x2]
-                cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
-                results = zxingcpp.read_barcodes(cropped_rgb)
+            # --- AUTO-DETECCIÓN ---
+            cropped = frame[y1:y2, x1:x2]
+            cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+            results = zxingcpp.read_barcodes(cropped_rgb)
 
-                if len(results) > 0:
-                    r = results[0]
-                    clean, data = parse_pdf417(r.text)
+            if len(results) > 0:
+                r = results[0]
+                clean, data = parse_pdf417(r.text)
 
-                    # Cerrar cámara
-                    cap.release()
-                    cv2.destroyAllWindows()
+                cap.release()
+                cv2.destroyAllWindows()
 
-                    # Enviar datos a Tkinter
-                    callback(data)
-                    return
-
-                else:
-                    messagebox.showwarning("Aviso", "No se detectó código PDF417.")
-
-            if key == 27:  # ESC
-                break
+                callback(data)
+                return
 
         cap.release()
         cv2.destroyAllWindows()
 
     threading.Thread(target=worker).start()
+
 
 def callback_devolucion(data):
     ced = data.get("cedula")
