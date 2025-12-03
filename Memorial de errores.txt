@@ -43,3 +43,8 @@ Traceback (most recent call last):
   File "/home/fablab/mcp2_py311/lib/python3.11/site-packages/adafruit_bus_device/i2c_device.py", line 176, in __probe_for_device
     raise ValueError("No I2C device at address: 0x%x" % self.device_address)
 ValueError: No I2C device at address: 0x20
+
+Traceback (most recent call last):
+  File "/home/fablab/mcp2_py311/Pruebai2c.py", line 1, in <module>
+    import tkinter as tk
+ModuleNotFoundError: No module named 'tkinter'
