@@ -111,3 +111,15 @@ sudo make altinstall
 note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.
 hint: See PEP 668 for the detailed specification.
 
+Traceback (most recent call last):
+  File "/home/fablab/pth310/Pruebacam.py", line 2, in <module>
+    import board
+  File "/home/fablab/pth310/lib/python3.10/site-packages/board.py", line 48, in <module>
+    from adafruit_blinka.board.raspberrypi.raspi_4b import *
+  File "/home/fablab/pth310/lib/python3.10/site-packages/adafruit_blinka/board/raspberrypi/raspi_4b.py", line 6, in <module>
+    from adafruit_blinka.microcontroller.bcm2711 import pin
+  File "/home/fablab/pth310/lib/python3.10/site-packages/adafruit_blinka/microcontroller/bcm2711/pin.py", line 7, in <module>
+    from adafruit_blinka.microcontroller.generic_linux.rpi_gpio_pin import Pin
+  File "/home/fablab/pth310/lib/python3.10/site-packages/adafruit_blinka/microcontroller/generic_linux/rpi_gpio_pin.py", line 6, in <module>
+    from RPi import GPIO
+ModuleNotFoundError: No module named 'RPi'
