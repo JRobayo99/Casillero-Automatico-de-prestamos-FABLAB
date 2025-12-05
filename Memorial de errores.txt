@@ -128,3 +128,11 @@ Traceback (most recent call last):
   File "/home/fablab/pth310/PDF4172.py", line 70, in <module>
     cv2.imshow("Captura", frame)
 cv2.error: OpenCV(4.12.0) /io/opencv/modules/highgui/src/window.cpp:1301: error: (-2:Unspecified error) The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Cocoa support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script in function 'cvShowImage'
+
+File "/usr/local/lib/python3.10/tkinter/__init__.py", line 1921, in __call__
+    return self.func(*args)
+  File "/home/fablab/pth310/Integracionfinal.py", line 334, in <lambda>
+    command=lambda: iniciar_lector_pdf417(callback_devolucion)
+  File "/home/fablab/pth310/Integracionfinal.py", line 144, in iniciar_lector_pdf417
+    t = threading.Thread(target=worker, deamon=True)
+TypeError: Thread.__init__() got an unexpected keyword argument 'deamon'
