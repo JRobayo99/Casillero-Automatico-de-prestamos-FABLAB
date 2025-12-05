@@ -123,3 +123,8 @@ Traceback (most recent call last):
   File "/home/fablab/pth310/lib/python3.10/site-packages/adafruit_blinka/microcontroller/generic_linux/rpi_gpio_pin.py", line 6, in <module>
     from RPi import GPIO
 ModuleNotFoundError: No module named 'RPi'
+
+Traceback (most recent call last):
+  File "/home/fablab/pth310/PDF4172.py", line 70, in <module>
+    cv2.imshow("Captura", frame)
+cv2.error: OpenCV(4.12.0) /io/opencv/modules/highgui/src/window.cpp:1301: error: (-2:Unspecified error) The function is not implemented. Rebuild the library with Windows, GTK+ 2.x or Cocoa support. If you are on Ubuntu or Debian, install libgtk2.0-dev and pkg-config, then re-run cmake or configure script in function 'cvShowImage'
