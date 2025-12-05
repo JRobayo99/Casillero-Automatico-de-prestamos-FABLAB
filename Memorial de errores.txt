@@ -145,3 +145,8 @@ File "/usr/local/lib/python3.10/threading.py", line 1016, in _bootstrap_inner
     while iniciar_lector_pdf417.tomar_foto  :
 AttributeError: 'function' object has no attribute 'tomar_foto'
 Killed
+
+[ WARN:0@7.863] global cap_v4l.cpp:914 open VIDEOIO(V4L2:/dev/video2): can't open camera by index
+[ WARN:0@7.863] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
+qt.qpa.plugin: Could not find the Qt platform plugin "wayland" in "/home/fablab/pth310/lib/python3.10/site-packages/cv2/qt/plugins"
+Killed
