@@ -113,6 +113,7 @@ def iniciar_lector_pdf417(callback):
                 tomar_foto = False   # Reset
 
                 cropped = frame[y1:y2, x1:x2]
+                cropped= cv2. resize(cropped, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
                 cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
                 results = zxingcpp.read_barcodes(cropped_rgb)
 
