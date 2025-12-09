@@ -78,6 +78,8 @@ def parse_pdf417(text):
 # FUNCIÓN PRINCIPAL DEL ESCÁNER (ejecutada en un hilo)
 # ==========================================================
 def iniciar_lector_pdf417(callback):
+
+    cerrar_scanner()
     
     global stop_scanner
     stop_scanner = False
@@ -145,12 +147,18 @@ def iniciar_lector_pdf417(callback):
               bg="#00adb5", command=presionar_boton).pack(pady=20)
 
     threading.Thread(target=worker, daemon=True).start()
-    def cerrar_scanner_y_devolver():
+
+stop_scanner = False
+
+def cerrar_scanner():
         
-        global stop_scanner
-        stop_scanner = True
+    global stop_scanner
+    stop_scanner = True
+    try:
         cv2.destroyAllWindows()
-        show_dashboard
+
+    except:
+        pass    
 
 
         
@@ -160,6 +168,8 @@ def iniciar_lector_pdf417(callback):
 # DEVOLUCIÓN
 # ==========================================================
 def callback_devolucion(data):
+
+    cerrar_scanner()
     ced = data.get("cedula")
 
     if ced not in prestamos_activos:
@@ -258,6 +268,8 @@ def iniciar_scan_devolucion():
 
 # -------------------- ESCANEO DE DOCUMENTO -------------------
 def callback_datos_cedula(data):
+    cerrar_scanner()
+
     global datos_cedula_global
     global ultimo_escaneo
 
@@ -343,7 +355,7 @@ def btn_presta():
 # -------------------- DEVOLUCIÓN --------------------
 def btn_devolver():
     clear_content()
-
+    cerrar_scanner()
    
         
     global stop_scanner
