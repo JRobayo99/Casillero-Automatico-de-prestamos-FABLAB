@@ -83,18 +83,25 @@ def iniciar_lector_pdf417(callback):
     tk.Label(content, text="📄📷 Escaneo de documento", 
              font=("Arial, 30"), bg="#eeeeee").pack(pady=10)
 
-    if hasattr(iniciar_lector_pdf417, "running") and iniciar_lector_pdf417.running:
+    if hasattr(iniciar_lector_pdf417, "running"):
+        iniciar_lector_pdf417 = True
         messagebox.showinfo("Aviso", "El lector ya está en ejecución.")
-        return
-    
-    iniciar_lector_pdf417.running = True
-    tomar_foto = {"flag": False}
+        
+    try:
+        cv2.destroyWindow("Captura Cédula")
+
+    except:
+        pass
+
+    iniciar_lector_pdf417.running = False
+    tomar_foto = {"flag": True}
 
     def presionar_boton():
-        tomar_foto["flag"] = True
+        tomar_foto["flag"] = False
 
     tk.Button(content, text="📸 Tomar Foto", font=("Arial", 20), bg="#00adb5", command=presionar_boton).pack(pady=20)
 
+    iniciar_lector_pdf417.running = True  
 
     def worker():
         cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
@@ -126,7 +133,7 @@ def iniciar_lector_pdf417(callback):
 
                 if len(results) > 0:
                     iniciar_lector_pdf417.running = False                
-                    data = parse_pdf417(results[0].text)
+                    clean, data = parse_pdf417(results[0].text)
 
                     cap.release()
                     cv2.destroyAllWindows()
@@ -138,6 +145,7 @@ def iniciar_lector_pdf417(callback):
                     messagebox.showwarning("Aviso", "No se detectó código PDF417.")
                     continue
             
+        iniciar_lector_pdf417.running = False 
         cap.release()
         cv2.destroyAllWindows()
 
