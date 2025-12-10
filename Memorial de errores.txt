@@ -159,3 +159,5 @@ Traceback (most recent call last):
   File "/home/fablab/pth310/integraciónfinalprueba31.py", line 171, in iniciar_lector_pdf417
     scanner_thread.start()
 AttributeError: 'NoneType' object has no attribute 'start'
+
+qt.qpa.plugin: Could not find the Qt platform plugin "wayland" in "/home/fablab/pth310/lib/python3.10/site-packages/cv2/qt/plugins"
