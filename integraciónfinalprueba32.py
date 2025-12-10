@@ -73,37 +73,36 @@ def parse_pdf417(text):
 
     return clean, data
 
+
 stop_scanner = False
+tomar_foto = False   # variable global para facilitar manejo
 
 
 def cerrar_scanner():
-        
-    global stop_scanner
+    global stop_scanner, tomar_foto
     stop_scanner = True
-
-
+    tomar_foto = False
     try:
-        
         cv2.destroyAllWindows()
-
     except:
-        pass    
+        pass
 
 
 # ==========================================================
-# FUNCIÓN PRINCIPAL DEL ESCÁNER (ejecutada en un hilo)
+# ESCÁNER PDF417
 # ==========================================================
 def iniciar_lector_pdf417(callback):
 
-    cerrar_scanner()
-    
-    global stop_scanner
-    stop_scanner = False
+    cerrar_scanner()  # asegurar que no haya cámaras abiertas
 
-    tomar_foto = {"value": False}
+    global stop_scanner, tomar_foto
+    stop_scanner = False
+    tomar_foto = False
 
     def worker():
-    
+
+        global stop_scanner, tomar_foto
+
         cap = cv2.VideoCapture(0)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
@@ -111,66 +110,66 @@ def iniciar_lector_pdf417(callback):
         x1, y1 = 500, 150
         x2, y2 = 1700, 800
 
-        # Variable para indicar si el botón "Tomar foto" fue presionado
-        nonlocal tomar_foto
-        tomar_foto = False
-
         cv2.namedWindow("Captura Cédula", cv2.WINDOW_NORMAL)
 
         while not stop_scanner:
+
             ret, frame = cap.read()
             if not ret:
                 continue
 
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.imshow("Captura Cédula", frame)
+            cv2.waitKey(1)
 
-            cv2.waitKey(1) 
-                
-
-            # Si el botón fue presionado → tomar foto
             if tomar_foto:
-                tomar_foto = False   # Reset
+                tomar_foto = False
 
                 cropped = frame[y1:y2, x1:x2]
-                cropped= cv2. resize(cropped, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+                cropped = cv2.resize(cropped, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
                 cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
                 results = zxingcpp.read_barcodes(cropped_rgb)
 
                 if len(results) > 0:
-
                     cerrar_scanner()
+
                     r = results[0]
                     clean, data = parse_pdf417(r.text)
 
-                
-
                     root.after(0, lambda: callback(data))
-                    return
-
+                    break
                 else:
                     root.after(0, lambda: messagebox.showwarning("Aviso", "No se detectó código PDF417."))
 
         cap.release()
         cv2.destroyAllWindows()
-    # Variable compartida entre Tkinter y el hilo
-    tomar_foto = False
 
+
+    # ---------- BOTÓN TOMAR FOTO ----------
     def presionar_boton():
-        nonlocal tomar_foto
-        tomar_foto ["value"]= True
+        global tomar_foto
+        tomar_foto = True
 
-    # Crear botón dentro de la ventana Tkinter
-    tk.Button(content, text="📸 Tomar Foto", font=("Arial", 20),
-              bg="#00adb5", command=presionar_boton).pack(pady=20)
-    tk.Button(content, text="↩ Volver", font=("Arial", 18), command=lambda:[cerrar_scanner(), show_dashboard()]).pack(pady=10)
+    tk.Button(
+        content,
+        text="📸 Tomar Foto",
+        font=("Arial", 20),
+        bg="#00adb5",
+        command=presionar_boton
+    ).pack(pady=20)
 
-    scanner_thread = threading.Thread(target=worker, daemon=True).start()
+    # ---------- BOTÓN VOLVER ----------
+    tk.Button(
+        content,
+        text="↩ Volver",
+        font=("Arial", 18),
+        command=lambda: [cerrar_scanner(), show_dashboard()]
+    ).pack(pady=10)
+
+    # ---------- INICIO DEL HILO ----------
+    scanner_thread = threading.Thread(target=worker, daemon=True)
     scanner_thread.start()
 
-def boton_volver():
-    cerrar_scanner()
-    show_dashboard()
 
 
     
@@ -326,10 +325,39 @@ def btn_scandoc():
     resumen = "Herramientas a prestar:\n" + "\n".join(f"• {h}" for h in herramientas_seleccionadas)
     tk.Label(content, text=resumen, font=("Arial", 18), bg="#eeeeee").pack(pady=10)
 
-    tk.Button(content, text="📸 Escanear documento", font=("Arial", 20),
-              bg="#00adb5", command=iniciar_scan_prestamo).pack(pady=20)
+    frame_botones = tk.Frame(content, bg="#eeeeee")
+    frame_botones.pack(pady=40)
 
-    tk.Button(content, text=" ↩️ Volver", command=lambda:[btn_presta(), cerrar_scanner()]).pack(pady=20)
+    # === BOTÓN 1 — ESCANEAR DOCUMENTO (equivalente a encender cámara) ===
+    tk.Button(frame_botones,
+              text="📄 Escanear Documento",
+              font=("Arial", 20),
+              bg="#00adb5",
+              width=20,
+              command=iniciar_scan_prestamo).grid(row=0, column=0, padx=20, pady=10)
+
+    # === BOTÓN 2 — DEVOLVER (equivalente a apagar cámara) ===
+    tk.Button(frame_botones,
+              text="↩ Devolver",
+              font=("Arial", 20),
+              bg="#f05454",
+              width=20,
+              command=btn_devolver).grid(row=1, column=0, padx=20, pady=10)
+
+    # === BOTÓN 3 — TOMAR FOTO (mantiene su función actual) ===
+    tk.Button(frame_botones,
+              text="📸 Tomar Foto",
+              font=("Arial", 20),
+              bg="#393e46",
+              fg="white",
+              width=20,
+              command=lambda: iniciar_lector_pdf417(callback_datos_cedula)
+             ).grid(row=2, column=0, padx=20, pady=10)
+
+    tk.Button(content,
+              text="↩ Volver",
+              font=("Arial", 18),
+              command=lambda: [cerrar_scanner(), btn_presta()]).pack(pady=20)
 
 
 # -------------------- PRÉSTAMO --------------------
@@ -372,16 +400,45 @@ def btn_devolver():
     clear_content()
     cerrar_scanner()
 
-   
-    
-    tk.Label(content, text="Escanear cédula para devolución",
+    tk.Label(content, text="🔄 Devolución de herramientas",
              font=("Arial", 30), bg="#eeeeee").pack(pady=20)
 
-    tk.Button(content, text="📸 Escanear documento",
-              font=("Arial", 20), bg="#00adb5",
-              command=iniciar_scan_devolucion).pack(pady=20)
+    tk.Label(content, text="Seleccione una opción",
+             font=("Arial", 20), bg="#eeeeee").pack(pady=10)
 
-    tk.Button(content, text="↩ Volver", command=lambda:[cerrar_scanner(), show_dashboard()]).pack(pady=20)
+    frame_botones = tk.Frame(content, bg="#eeeeee")
+    frame_botones.pack(pady=40)
+
+    # === BOTÓN 1 — ESCANEAR DOCUMENTO (equivale al encender cámara) ===
+    tk.Button(frame_botones,
+              text="📄 Escanear Documento",
+              font=("Arial", 20),
+              bg="#00adb5",
+              width=20,
+              command=iniciar_scan_devolucion).grid(row=0, column=0, padx=20, pady=10)
+
+    # === BOTÓN 2 — DEVOLVER (equivale al apagar cámara) ===
+    tk.Button(frame_botones,
+              text="↩ Devolver",
+              font=("Arial", 20),
+              bg="#f05454",
+              width=20,
+              command=lambda: [cerrar_scanner(), show_dashboard()]).grid(row=1, column=0, padx=20, pady=10)
+
+    # === BOTÓN 3 — TOMAR FOTO (idéntico al préstamo) ===
+    tk.Button(frame_botones,
+              text="📸 Tomar Foto",
+              font=("Arial", 20),
+              bg="#393e46",
+              fg="white",
+              width=20,
+              command=lambda: iniciar_lector_pdf417(callback_devolucion)
+             ).grid(row=2, column=0, padx=20, pady=10)
+
+    tk.Button(content,
+              text="↩ Volver",
+              font=("Arial", 18),
+              command=lambda: [cerrar_scanner(), show_dashboard()]).pack(pady=20)
 
 
 # -------------------- DASHBOARD --------------------
