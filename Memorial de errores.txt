@@ -150,3 +150,14 @@ Killed
 [ WARN:0@7.863] global cap.cpp:478 open VIDEOIO(V4L2): backend is generally available but can't be used to capture by index
 qt.qpa.plugin: Could not find the Qt platform plugin "wayland" in "/home/fablab/pth310/lib/python3.10/site-packages/cv2/qt/plugins"
 Killed
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/tkinter/__init__.py", line 1921, in __call__
+    return self.func(*args)
+  File "/home/fablab/pth310/integraciónfinalprueba31.py", line 315, in iniciar_scan
+    iniciar_lector_pdf417(callback_datos_cedula)
+  File "/home/fablab/pth310/integraciónfinalprueba31.py", line 171, in iniciar_lector_pdf417
+    scanner_thread.start()
+AttributeError: 'NoneType' object has no attribute 'start'
+
+qt.qpa.plugin: Could not find the Qt platform plugin "wayland" in "/home/fablab/pth310/lib/python3.10/site-packages/cv2/qt/plugins"
