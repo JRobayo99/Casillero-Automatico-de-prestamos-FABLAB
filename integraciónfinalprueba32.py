@@ -76,12 +76,21 @@ def parse_pdf417(text):
 
 stop_scanner = False
 tomar_foto = False   # variable global para facilitar manejo
+scanner_thread = None  # guarda el hilo del scanner actual (si existe)
 
 
 def cerrar_scanner():
     global stop_scanner, tomar_foto
     stop_scanner = True
     tomar_foto = False
+    global scanner_thread
+    # intentar esperar a que el hilo termine para liberar la cámara
+    try:
+        if scanner_thread is not None and scanner_thread.is_alive():
+            scanner_thread.join(timeout=1.0)
+    except Exception:
+        pass
+    scanner_thread = None
     try:
         cv2.destroyAllWindows()
     except:
@@ -100,49 +109,61 @@ def iniciar_lector_pdf417(callback):
     tomar_foto = False
 
     def worker():
+        global stop_scanner, tomar_foto, scanner_thread
+        try:
+            cap = cv2.VideoCapture(0)
+            # Validar que la cámara se abrió correctamente
+            if not cap.isOpened():
+                root.after(0, lambda: messagebox.showerror("Error", "No se pudo acceder a la cámara. Revisa que ninguna otra aplicación la esté usando o que el dispositivo esté conectado."))
+                return
 
-        global stop_scanner, tomar_foto
+            cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+            cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
-        cap = cv2.VideoCapture(0)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+            x1, y1 = 500, 150
+            x2, y2 = 1700, 800
 
-        x1, y1 = 500, 150
-        x2, y2 = 1700, 800
+            cv2.namedWindow("Captura Cédula", cv2.WINDOW_NORMAL)
 
-        cv2.namedWindow("Captura Cédula", cv2.WINDOW_NORMAL)
+            while not stop_scanner:
+                ret, frame = cap.read()
+                if not ret:
+                    continue
 
-        while not stop_scanner:
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.imshow("Captura Cédula", frame)
+                cv2.waitKey(1)
 
-            ret, frame = cap.read()
-            if not ret:
-                continue
+                if tomar_foto:
+                    tomar_foto = False
 
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.imshow("Captura Cédula", frame)
-            cv2.waitKey(1)
+                    cropped = frame[y1:y2, x1:x2]
+                    cropped = cv2.resize(cropped, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+                    cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+                    results = zxingcpp.read_barcodes(cropped_rgb)
 
-            if tomar_foto:
-                tomar_foto = False
-
-                cropped = frame[y1:y2, x1:x2]
-                cropped = cv2.resize(cropped, None, fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
-                cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
-                results = zxingcpp.read_barcodes(cropped_rgb)
-
-                if len(results) > 0:
-                    cerrar_scanner()
-
-                    r = results[0]
-                    clean, data = parse_pdf417(r.text)
-
-                    root.after(0, lambda: callback(data))
-                    break
-                else:
-                    root.after(0, lambda: messagebox.showwarning("Aviso", "No se detectó código PDF417."))
-
-        cap.release()
-        cv2.destroyAllWindows()
+                    if len(results) > 0:
+                        cerrar_scanner()
+                        r = results[0]
+                        clean, data = parse_pdf417(r.text)
+                        root.after(0, lambda: callback(data))
+                        break
+                    else:
+                        root.after(0, lambda: messagebox.showwarning("Aviso", "No se detectó código PDF417."))
+        finally:
+            try:
+                cap.release()
+            except Exception:
+                pass
+            try:
+                cv2.destroyAllWindows()
+            except Exception:
+                pass
+            # limpiar referencia al hilo cuando termina
+            try:
+                scanner_thread = None
+            except Exception:
+                pass
 
 
     # ---------- BOTÓN TOMAR FOTO ----------
@@ -167,6 +188,11 @@ def iniciar_lector_pdf417(callback):
     ).pack(pady=10)
 
     # ---------- INICIO DEL HILO ----------
+    global scanner_thread
+    # si ya existe un hilo activo, no iniciar otro
+    if scanner_thread is not None and scanner_thread.is_alive():
+        root.after(0, lambda: messagebox.showinfo("Scanner", "El scanner ya está abierto."))
+        return
     scanner_thread = threading.Thread(target=worker, daemon=True)
     scanner_thread.start()
 
