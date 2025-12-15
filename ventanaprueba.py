@@ -1,20 +1,37 @@
 import tkinter as tk
 import tkinter.font as tkfont
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
+import db
+
+
+# Optional libraries for scanner and image preview
+
 
 ventanai = tk.Tk()
 
 ventanai.title("Casillero de pretamos")
-ventanai.geometry("600x400")
+ventanai.geometry("1850x1080")
 ventanai.config(bg="royal blue")
 
 # --- Marco verde (lado izquierdo) ---
 # Left green panel
 frame1 = tk.Frame(ventanai)
-# Keep paddings small so the frame size is controlled by width/height
-frame1.configure(bg="SpringGreen", width=300, height=400, padx=0, pady=0)
+# Left panel: increase size and show clear border area for the ID
+frame1.configure(bg="SpringGreen", width=350, height=1080, padx=0, pady=0, bd=2, relief='solid')
 # position at top-left
 frame1.place(x=0, y=0)
+
+# --- Área de contenido (derecha) ---
+content_frame = tk.Frame(ventanai, bg="#eeeeee")
+content_frame.place(x=400, y=0, width=1420, height=1080)
+
+# --- Base de datos local para préstamos ---
+
+
+# (integración de escáner/PDF417 eliminada para volver al estado anterior)
+
+# Helpers para modo escáner (fullscreen y expansión del área de contenido)
+
 
 # --- Botón redondeado dentro de frame1 ---
 # Configurables (modifica estos valores según quieras tamaño/estilo)
@@ -22,7 +39,7 @@ BUTTON_WIDTH = 160
 BUTTON_HEIGHT = 50
 BUTTON_RADIUS = 18
 BUTTON_X = 60
-BUTTON_Y = 20
+BUTTON_Y = 400
 BUTTON_TEXT = "Préstamo"
 
 frame_bg = frame1.cget('bg')
@@ -31,7 +48,7 @@ btn_outline = frame_bg  # contorno igual al color del marco para que no destaque
 
 # Canvas para dibujar el botón (fondo del canvas igual al color del marco)
 canvas_btn = tk.Canvas(frame1, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-					   bg=frame_bg, highlightthickness=0)
+				   bg=frame_bg, highlightthickness=0)
 canvas_btn.place(x=BUTTON_X, y=BUTTON_Y)
 
 def _rounded_rect(canvas, x1, y1, x2, y2, r=10, **kwargs):
@@ -55,40 +72,44 @@ _rounded_rect(canvas_btn, 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT,
 			  r=BUTTON_RADIUS, fill=btn_fill, outline=btn_outline)
 
 # Fuente del texto del botón (ajustable)
-font_btn = tkfont.Font(family='Helvetica', size=12, weight='bold')
+font_btn = tkfont.Font(family='Helvetica2', size=12, weight='bold')
 canvas_btn.create_text(BUTTON_WIDTH/2, BUTTON_HEIGHT/2, text=BUTTON_TEXT,
-					   font=font_btn, fill='black')
+				   font=font_btn, fill='black')
 
 # Simular comportamiento de botón (evento click)
+canvas_btn.bind('<Button-1>', lambda e: open_prestamo(e))
+
 def open_prestamo(event=None):
+	# Si el selection_frame ya está visible, lo ocultamos (doble click cierra menú)
+	if 'selection_frame' in globals():
+		sel = globals()['selection_frame']
+		if str(sel.place_info()) != '{}':
+			sel.place_forget()
+			ventanai.title('Casillero de pretamos')
+			return
 	# Mostrar la vista de selección DENTRO de la misma ventana (no abrir otra)
-	ventanai.title("Selección de 5 objetos")
+	ventanai.title("Selección de objetos (máx. 3)")
+	# Limpiar el área de contenido antes de mostrar el selection_frame
+	for w in content_frame.winfo_children():
+		w.destroy()
 	# Crear o limpiar el frame de selección que ocupará la parte derecha
-	try:
-		selection_frame
-	except NameError:
-		# frame creado por primera vez
+	if 'selection_frame' not in globals():
 		globals()['selection_frame'] = tk.Frame(ventanai, bg='white')
 
-	self = globals()['selection_frame']
-	# limpiar contenido anterior
-	for w in self.winfo_children():
+	sel = globals()['selection_frame']
+	for w in sel.winfo_children():
 		w.destroy()
 
-	# colocar en la parte derecha de la ventana
-	self.place(x=300, y=0, width=300, height=400)
+	sel.place(x=600, y=50, width=1200, height=1000)
 
-	tk.Label(self, text="Selección de 5 objetos", font=('Helvetica', 12, 'bold'), bg='white').pack(pady=(10, 6))
+	tk.Label(sel, text="Selección de 5 objetos", font=('Helvetica', 12, 'bold'), bg='white').pack(pady=(10, 6))
+	tk.Label(sel, text="Selecciona hasta 3 objetos:", font=('Helvetica', 10), bg='white').pack(pady=(0, 6))
 
-	tk.Label(self, text="Selecciona hasta 5 objetos:", font=('Helvetica', 10), bg='white').pack(pady=(0, 6))
-
-	# Checkbuttons para 5 objetos
 	vars_cb = []
 	def update_selection():
-		sel = sum(v.get() for v in vars_cb)
-		if sel > 5:
-			messagebox.showwarning("Límite", "Sólo puedes seleccionar hasta 5 objetos")
-			# deshacer la última selección marcada
+		sel_count = sum(v.get() for v in vars_cb)
+		if sel_count > 3:
+			messagebox.showwarning("Límite", "Puedes seleccionar como máximo 3 objetos")
 			for v in reversed(vars_cb):
 				if v.get() == 1:
 					v.set(0)
@@ -96,92 +117,93 @@ def open_prestamo(event=None):
 
 	for i in range(5):
 		v = tk.IntVar()
-		cb = tk.Checkbutton(self, text=f"Objeto {i+1}", variable=v, command=update_selection, bg='white')
+		cb = tk.Checkbutton(sel, text=f"Objeto {i+1}", variable=v, command=update_selection, bg='white')
 		cb.pack(anchor='w', padx=20)
 		vars_cb.append(v)
 
-	btn_frame = tk.Frame(self, bg='white')
+	btn_frame = tk.Frame(sel, bg='white')
 	btn_frame.pack(pady=12)
 
 	def aceptar():
 		seleccion = [f"Objeto {i+1}" for i, v in enumerate(vars_cb) if v.get() == 1]
-		messagebox.showinfo("Seleccionados", f"Has seleccionado: {', '.join(seleccion) if seleccion else 'Nada'}")
+		if len(seleccion) == 0:
+			messagebox.showwarning("Aviso", "Selecciona al menos un objeto")
+			return
+		if len(seleccion) > 3:
+			messagebox.showwarning("Límite", "Puedes seleccionar como máximo 3 objetos")
+			return
+
+		# mostrar resumen en el content_frame
+		for w in content_frame.winfo_children():
+			w.destroy()
+		tk.Label(content_frame, text='Resumen de selección', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(8,4))
+		tk.Label(content_frame, text=f'Objetos seleccionados: {", ".join(seleccion)}', bg='#eeeeee').pack(pady=6, anchor='w', padx=8)
+
+		btns = tk.Frame(content_frame, bg='#eeeeee')
+		btns.pack(pady=8)
+
+		def on_prestar():
+			ok = messagebox.askyesno('Confirmar', '¿Desea prestar las herramientas seleccionadas?')
+			if not ok:
+				return
+			# abrir formulario manual para datos de la persona
+			for w in content_frame.winfo_children():
+				w.destroy()
+			tk.Label(content_frame, text="Ingreso manual de datos", font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(8,4))
+
+			entries = {}
+			fields = ['cedula','nombre','apellido1','apellido2','fecha_nac','rh']
+			for f in fields:
+				fr = tk.Frame(content_frame, bg='#eeeeee')
+				fr.pack(fill='x', padx=8, pady=2)
+				tk.Label(fr, text=f.capitalize()+':', width=15, anchor='w', bg='#eeeeee').pack(side='left')
+				e = tk.Entry(fr)
+				e.pack(side='left', fill='x', expand=True)
+				entries[f] = e
+
+			photo_path = {'path': None}
+			def select_photo():
+				fn = filedialog.askopenfilename(title='Seleccionar foto de la persona', filetypes=[('Imagen', '*.jpg *.jpeg *.png'), ('Todos', '*.*')])
+				if fn:
+					photo_path['path'] = fn
+					messagebox.showinfo('Foto', f'Foto seleccionada: {fn}')
+
+			controls = tk.Frame(content_frame, bg='#eeeeee')
+			controls.pack(pady=8)
+			tk.Button(controls, text='Seleccionar foto', command=select_photo).pack(side='left', padx=6)
+
+			def do_confirm_loan():
+				ced = entries['cedula'].get().strip()
+				nom = entries['nombre'].get().strip()
+				if not ced or not nom:
+					messagebox.showwarning('Aviso', 'Introduce al menos cédula y nombre antes de confirmar')
+					return
+				db.record_loan(ced, nom, seleccion, '', photo_path['path'])
+				messagebox.showinfo('Préstamo', f'Préstamo confirmado para {nom} ({ced})')
+				for w in content_frame.winfo_children():
+					w.destroy()
+				ventanai.title('Casillero de pretamos')
+
+			tk.Button(controls, text='Confirmar préstamo', command=do_confirm_loan).pack(side='left', padx=6)
+			tk.Button(controls, text='Cancelar', command=lambda: [c.destroy() for c in content_frame.winfo_children()]).pack(side='left', padx=6)
+
+		tk.Button(btns, text='Prestar herramienta', command=on_prestar).pack(side='left', padx=6)
+		tk.Button(btns, text='Cancelar', command=lambda: [w.destroy() for w in content_frame.winfo_children()]).pack(side='left', padx=6)
 
 	def volver_menu():
-		# ocultar la vista de selección y restaurar título
-		self.place_forget()
-		ventanai.title("Casillero de pretamos")
+		sel.place_forget()
+		ventanai.title('Casillero de pretamos')
 
-	tk.Button(btn_frame, text="Aceptar", command=aceptar).pack(side='left', padx=6)
-	tk.Button(btn_frame, text="Volver", command=volver_menu).pack(side='left', padx=6)
+	tk.Button(btn_frame, text='Escanear documento', command=aceptar).pack(side='left', padx=6)
+	tk.Button(btn_frame, text='Volver', command=volver_menu).pack(side='left', padx=6)
 
-canvas_btn.bind('<Button-1>', lambda e: open_prestamo(e))
-canvas_btn.config(cursor='hand2')
 
-def open_devolucion(event=None):
-	# Mostrar la vista de selección DENTRO de la misma ventana (no abrir otra)
-	ventanai.title("Selección de 5 objetos")
-	# Crear o limpiar el frame de selección que ocupará la parte derecha
-	try:
-		selection_frame
-	except NameError:
-		# frame creado por primera vez
-		globals()['selection_frame'] = tk.Frame(ventanai, bg='white')
 
-	self2 = globals()['selection_frame']
-	# limpiar contenido anterior
-	for w in self2.winfo_children():
-		w.destroy()
-
-	# colocar en la parte derecha de la ventana
-	self2.place(x=300, y=0, width=300, height=400)
-
-	tk.Label(self2, text="Selección de 5 objetos", font=('Helvetica', 12, 'bold'), bg='white').pack(pady=(10, 6))
-
-	tk.Label(self2, text="Selecciona hasta 5 objetos:", font=('Helvetica', 10), bg='white').pack(pady=(0, 6))
-
-	# Checkbuttons para 5 objetos
-	vars_cb2 = []
-	def update_selection():
-		sel2 = sum(v.get() for v2 in vars_cb2)
-		if sel2 > 5:
-			messagebox.showwarning("Límite", "Sólo puedes seleccionar hasta 5 objetos")
-			# deshacer la última selección marcada
-			for v2 in reversed(vars_cb2):
-				if v2.get() == 1:
-					v2.set(0)
-					break
-
-	for i in range(5):
-		v2 = tk.IntVar()
-		cb2 = tk.Checkbutton(self2, text=f"Objeto {i+1}", variable=v, command=update_selection, bg='white')
-		cb2.pack(anchor='w', padx=20)
-		vars_cb2.append(v2)
-
-	btn_frame2 = tk.Frame(self2, bg='white')
-	btn_frame2.pack(pady=12)
-
-	def aceptar():
-		seleccion2 = [f"Objeto {i+1}" for i, v in enumerate(vars_cb2) if v.get() == 1]
-		messagebox.showinfo("Seleccionados", f"Has seleccionado: {', '.join(seleccion2) if seleccion2 else 'Nada'}")
-
-	def volver_menu():
-		# ocultar la vista de selección y restaurar título
-		self2.place_forget()
-		ventanai.title("Casillero de pretamos")
-
-	tk.Button(btn_frame2, text="Aceptar", command=aceptar).pack(side='left', padx=6)
-	tk.Button(btn_frame2, text="Volver", command=volver_menu).pack(side='left', padx=6)
-
-canvas_btn.bind('<Button-2>', lambda e: open_devolucion(e))
-canvas_btn.config(cursor='hand2')
-# --- Botón redondeado dentro de frame1 ---
-# Configurables (modifica estos valores según quieras tamaño/estilo)
 BUTTON_WIDTH = 160
 BUTTON_HEIGHT = 50
 BUTTON_RADIUS = 18
 BUTTON_X = 60
-BUTTON_Y = 90
+BUTTON_Y = 500
 BUTTON_TEXT = "Devolución"
 
 frame_bg = frame1.cget('bg')
@@ -190,7 +212,7 @@ btn_outline = frame_bg  # contorno igual al color del marco para que no destaque
 
 # Canvas para dibujar el botón (fondo del canvas igual al color del marco)
 canvas_btn = tk.Canvas(frame1, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-					   bg=frame_bg, highlightthickness=0)
+				   bg=frame_bg, highlightthickness=0)
 canvas_btn.place(x=BUTTON_X, y=BUTTON_Y)
 
 def _rounded_rect(canvas, x1, y1, x2, y2, r=10, **kwargs):
@@ -216,54 +238,44 @@ _rounded_rect(canvas_btn, 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT,
 # Fuente del texto del botón (ajustable)
 font_btn = tkfont.Font(family='Helvetica', size=12, weight='bold')
 canvas_btn.create_text(BUTTON_WIDTH/2, BUTTON_HEIGHT/2, text=BUTTON_TEXT,
-					   font=font_btn, fill='black')
+				   font=font_btn, fill='black')
 
-# Simular comportamiento de botón (evento click)
-def on_button_click(event=None):
-	print('Botón redondeado pulsado')
 
+# Simular comportamiento de botón (evento click) para devolución
 def open_devolucion(event=None):
-	ventanai.title("Devolución")
-	try:
-		devol_frame
-	except NameError:
-		globals()['devol_frame'] = tk.Frame(ventanai, bg='white')
-
-	f = globals()['devol_frame']
-	for w in f.winfo_children():
+	# Ocultar selection_frame si está visible
+	if 'selection_frame' in globals():
+		sel = globals()['selection_frame']
+		sel.place_forget()
+	# Si el frame de devolución ya está visible, lo ocultamos (doble click cierra menú)
+	if hasattr(open_devolucion, 'frame_dev'):
+		try:
+			if open_devolucion.frame_dev.winfo_exists() and open_devolucion.frame_dev.winfo_ismapped():
+				open_devolucion.frame_dev.pack_forget()
+				for w in content_frame.winfo_children():
+					w.destroy()
+				ventanai.title('Casillero de pretamos')
+				del open_devolucion.frame_dev
+				return
+		except tk.TclError:
+			del open_devolucion.frame_dev
+	# Limpiar el área de contenido y mostrar los botones requeridos
+	for w in content_frame.winfo_children():
 		w.destroy()
+	frame_dev = tk.Frame(content_frame, bg='#eeeeee')
+	frame_dev.pack(expand=True, fill='both')
+	open_devolucion.frame_dev = frame_dev
+	tk.Label(frame_dev, text="Para devolver debes escanear el documento", font=('Helvetica', 14, 'bold'), fg='red', bg='#eeeeee').pack(pady=(40,20))
+	btns = tk.Frame(frame_dev, bg='#eeeeee')
+	btns.pack(pady=10)
+	tk.Button(btns, text='Escanear documento', font=('Helvetica', 12, 'bold')).pack(side='left', padx=10)
+	def volver_menu():
+		for w in content_frame.winfo_children():
+			w.destroy()
+		ventanai.title('Casillero de pretamos')
+	tk.Button(btns, text='Volver', font=('Helvetica', 12), command=volver_menu).pack(side='left', padx=10)
 
-	f.place(x=300, y=0, width=300, height=400)
-
-	tk.Label(f, text="Devolución", font=('Helvetica', 12, 'bold'), bg='white').pack(pady=(10, 6))
-	tk.Label(f, text="Para devolver: escanea el documento", font=('Helvetica', 10), bg='white').pack(pady=(0, 6))
-
-	# Entrada para texto (editable por el usuario) con texto por defecto
-	entry_dev = tk.Entry(f, width=36)
-	entry_dev.insert(0, "Para devolver: escanea el documento")
-	entry_dev.pack(pady=(0, 8), padx=10)
-
-	def iniciar_escaner():
-		# Simula el escaneo (rellena la entrada con texto de ejemplo)
-		entry_dev.delete(0, tk.END)
-		entry_dev.insert(0, "Documento escaneado: ID123456")
-		messagebox.showinfo("Escáner", "Escaneo simulado completado")
-
-	def devolver():
-		documento = entry_dev.get().strip()
-		if not documento:
-			messagebox.showwarning("Aviso", "No hay documento escaneado o texto en la entrada")
-			return
-		messagebox.showinfo("Devolución", f"Documento devuelto: {documento}")
-		entry_dev.delete(0, tk.END)
-
-	btnf = tk.Frame(f, bg='white')
-	btnf.pack(pady=10)
-	tk.Button(btnf, text="Iniciar escáner", command=iniciar_escaner).pack(side='left', padx=6)
-	tk.Button(btnf, text="Devolver", command=devolver).pack(side='left', padx=6)
-	tk.Button(btnf, text="Volver", command=lambda: [f.place_forget(), ventanai.title("Casillero de pretamos")]).pack(side='left', padx=6)
-
-canvas_btn.bind('<Button-1>', lambda e: open_devolucion(e))
+canvas_btn.bind('<Button-1>', open_devolucion)
 canvas_btn.config(cursor='hand2')
 
 # --- Botón redondeado dentro de frame1 ---
@@ -272,7 +284,7 @@ BUTTON_WIDTH = 160
 BUTTON_HEIGHT = 50
 BUTTON_RADIUS = 18
 BUTTON_X = 60
-BUTTON_Y = 160
+BUTTON_Y = 600
 BUTTON_TEXT = "Acceso por PIN"
 
 frame_bg = frame1.cget('bg')
@@ -281,7 +293,7 @@ btn_outline = frame_bg  # contorno igual al color del marco para que no destaque
 
 # Canvas para dibujar el botón (fondo del canvas igual al color del marco)
 canvas_btn = tk.Canvas(frame1, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-					   bg=frame_bg, highlightthickness=0)
+				   bg=frame_bg, highlightthickness=0)
 canvas_btn.place(x=BUTTON_X, y=BUTTON_Y)
 
 def _rounded_rect(canvas, x1, y1, x2, y2, r=10, **kwargs):
@@ -307,7 +319,7 @@ _rounded_rect(canvas_btn, 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT,
 # Fuente del texto del botón (ajustable)
 font_btn = tkfont.Font(family='Helvetica', size=12, weight='bold')
 canvas_btn.create_text(BUTTON_WIDTH/2, BUTTON_HEIGHT/2, text=BUTTON_TEXT,
-					   font=font_btn, fill='black')
+				   font=font_btn, fill='black')
 
 # Simular comportamiento de botón (evento click)
 def on_button_click(event=None):
@@ -322,7 +334,7 @@ BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 55
 BUTTON_RADIUS = 18
 BUTTON_X = 40
-BUTTON_Y = 230
+BUTTON_Y = 700
 BUTTON_TEXT = "Historial de préstamos"
 
 frame_bg = frame1.cget('bg')
@@ -331,7 +343,7 @@ btn_outline = frame_bg  # contorno igual al color del marco para que no destaque
 
 # Canvas para dibujar el botón (fondo del canvas igual al color del marco)
 canvas_btn = tk.Canvas(frame1, width=BUTTON_WIDTH, height=BUTTON_HEIGHT,
-					   bg=frame_bg, highlightthickness=0)
+				   bg=frame_bg, highlightthickness=0)
 canvas_btn.place(x=BUTTON_X, y=BUTTON_Y)
 
 def _rounded_rect(canvas, x1, y1, x2, y2, r=10, **kwargs):
@@ -357,7 +369,7 @@ _rounded_rect(canvas_btn, 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT,
 # Fuente del texto del botón (ajustable)
 font_btn = tkfont.Font(family='Helvetica', size=12, weight='bold')
 canvas_btn.create_text(BUTTON_WIDTH/2, BUTTON_HEIGHT/2, text=BUTTON_TEXT,
-					   font=font_btn, fill='black')
+				   font=font_btn, fill='black')
 
 # Simular comportamiento de botón (evento click)
 def on_button_click(event=None):
@@ -366,6 +378,9 @@ def on_button_click(event=None):
 canvas_btn.bind('<Button-1>', lambda e: print('Historial pulsado'))
 canvas_btn.config(cursor='hand2')
 
+
+# Inicializar base de datos
+db.init_db()
 
 # Ajustes de ventana: mantenemos un tamaño mínimo razonable
 ventanai.minsize(1850, 1080)
