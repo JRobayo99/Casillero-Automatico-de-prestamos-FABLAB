@@ -1,7 +1,10 @@
+
 import tkinter as tk
 import tkinter.font as tkfont
 from tkinter import messagebox, filedialog
 import db
+# Import PDF417 scanner logic
+import PDF417
 
 
 # Optional libraries for scanner and image preview
@@ -124,6 +127,33 @@ def open_prestamo(event=None):
 	btn_frame = tk.Frame(sel, bg='white')
 	btn_frame.pack(pady=12)
 
+	def escanear_documento():
+		# Llama al escáner y obtiene los datos
+		try:
+			clean, data = PDF417.scan_and_get_data()
+		except Exception as e:
+			messagebox.showerror('Error', f'Error al escanear: {e}')
+			return
+		if not data or not data.get('cedula'):
+			messagebox.showwarning('Aviso', 'No se detectó un código PDF417 válido.')
+			return
+		# Mostrar resumen en el content_frame
+		for w in content_frame.winfo_children():
+			w.destroy()
+		tk.Label(content_frame, text='Datos detectados', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(8,4))
+		for k, v in data.items():
+			tk.Label(content_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=2, anchor='w', padx=8)
+		btns = tk.Frame(content_frame, bg='#eeeeee')
+		btns.pack(pady=8)
+		def on_confirm():
+			db.record_loan(data.get('cedula'), data.get('nombre', ''), [], '', None)
+			messagebox.showinfo('Préstamo', f'Préstamo confirmado para {data.get("nombre", "")} ({data.get("cedula", "")})')
+			for w in content_frame.winfo_children():
+				w.destroy()
+			ventanai.title('Casillero de pretamos')
+		tk.Button(btns, text='Confirmar préstamo', command=on_confirm).pack(side='left', padx=6)
+		tk.Button(btns, text='Cancelar', command=lambda: [c.destroy() for c in content_frame.winfo_children()]).pack(side='left', padx=6)
+
 	def aceptar():
 		seleccion = [f"Objeto {i+1}" for i, v in enumerate(vars_cb) if v.get() == 1]
 		if len(seleccion) == 0:
@@ -194,7 +224,7 @@ def open_prestamo(event=None):
 		sel.place_forget()
 		ventanai.title('Casillero de pretamos')
 
-	tk.Button(btn_frame, text='Escanear documento', command=aceptar).pack(side='left', padx=6)
+	tk.Button(btn_frame, text='Escanear documento', command=escanear_documento).pack(side='left', padx=6)
 	tk.Button(btn_frame, text='Volver', command=volver_menu).pack(side='left', padx=6)
 
 
@@ -268,7 +298,32 @@ def open_devolucion(event=None):
 	tk.Label(frame_dev, text="Para devolver debes escanear el documento", font=('Helvetica', 14, 'bold'), fg='red', bg='#eeeeee').pack(pady=(40,20))
 	btns = tk.Frame(frame_dev, bg='#eeeeee')
 	btns.pack(pady=10)
-	tk.Button(btns, text='Escanear documento', font=('Helvetica', 12, 'bold')).pack(side='left', padx=10)
+	def escanear_documento_devolucion():
+		try:
+			clean, data = PDF417.scan_and_get_data()
+		except Exception as e:
+			messagebox.showerror('Error', f'Error al escanear: {e}')
+			return
+		if not data or not data.get('cedula'):
+			messagebox.showwarning('Aviso', 'No se detectó un código PDF417 válido.')
+			return
+		for w in content_frame.winfo_children():
+			w.destroy()
+		tk.Label(content_frame, text='Datos detectados', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(8,4))
+		for k, v in data.items():
+			tk.Label(content_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=2, anchor='w', padx=8)
+		btns = tk.Frame(content_frame, bg='#eeeeee')
+		btns.pack(pady=8)
+		def on_confirm():
+			# Aquí puedes llamar a la función de devolución en la base de datos
+			messagebox.showinfo('Devolución', f'Devolución registrada para {data.get("nombre", "")} ({data.get("cedula", "")})')
+			for w in content_frame.winfo_children():
+				w.destroy()
+			ventanai.title('Casillero de pretamos')
+		tk.Button(btns, text='Confirmar devolución', command=on_confirm).pack(side='left', padx=6)
+		tk.Button(btns, text='Cancelar', command=lambda: [c.destroy() for c in content_frame.winfo_children()]).pack(side='left', padx=6)
+
+	tk.Button(btns, text='Escanear documento', font=('Helvetica', 12, 'bold'), command=escanear_documento_devolucion).pack(side='left', padx=10)
 	def volver_menu():
 		for w in content_frame.winfo_children():
 			w.destroy()
