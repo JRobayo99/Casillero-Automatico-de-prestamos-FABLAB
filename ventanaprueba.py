@@ -1,9 +1,9 @@
-
+import pandas as pd
+import db_prestamos_csv
 import tkinter as tk
 import tkinter.font as tkfont
 from tkinter import messagebox, filedialog
 import db
-# Import PDF417 scanner logic
 import PDF417
 
 
@@ -13,7 +13,7 @@ import PDF417
 ventanai = tk.Tk()
 
 ventanai.title("Casillero de pretamos")
-ventanai.geometry("1850x1080")
+ventanai.geometry("500x300")
 ventanai.config(bg="royal blue")
 
 # --- Marco verde (lado izquierdo) ---
@@ -36,13 +36,14 @@ content_frame.place(x=400, y=0, width=1420, height=1080)
 # Helpers para modo escáner (fullscreen y expansión del área de contenido)
 
 
+
 # --- Botón redondeado dentro de frame1 ---
 # Configurables (modifica estos valores según quieras tamaño/estilo)
 BUTTON_WIDTH = 160
 BUTTON_HEIGHT = 50
 BUTTON_RADIUS = 18
 BUTTON_X = 60
-BUTTON_Y = 400
+BUTTON_Y = 100
 BUTTON_TEXT = "Préstamo"
 
 frame_bg = frame1.cget('bg')
@@ -103,7 +104,7 @@ def open_prestamo(event=None):
 	for w in sel.winfo_children():
 		w.destroy()
 
-	sel.place(x=600, y=50, width=1200, height=1000)
+	sel.place(x=400, y=50, width=400, height=400)
 
 	tk.Label(sel, text="Selección de 5 objetos", font=('Helvetica', 12, 'bold'), bg='white').pack(pady=(10, 6))
 	tk.Label(sel, text="Selecciona hasta 3 objetos:", font=('Helvetica', 10), bg='white').pack(pady=(0, 6))
@@ -112,7 +113,7 @@ def open_prestamo(event=None):
 	def update_selection():
 		sel_count = sum(v.get() for v in vars_cb)
 		if sel_count > 3:
-			messagebox.showwarning("Límite", "Puedes seleccionar como máximo 3 objetos")
+			messagebox.showwarning("Límite", "¡Puedes seleccionar como minimo 1 objeto y máximo 3 objetos!")
 			for v in reversed(vars_cb):
 				if v.get() == 1:
 					v.set(0)
@@ -130,13 +131,26 @@ def open_prestamo(event=None):
 	def escanear_documento():
 		# Llama al escáner y obtiene los datos
 		try:
-			clean, data = PDF417.scan_and_get_data()
+			data = PDF417.scan_pdf417()
 		except Exception as e:
 			messagebox.showerror('Error', f'Error al escanear: {e}')
 			return
-		if not data or not data.get('cedula'):
+		if not data or not data.get('Cédula'):
 			messagebox.showwarning('Aviso', 'No se detectó un código PDF417 válido.')
 			return
+		# Validar que al menos un objeto esté seleccionado
+		seleccion = []
+		if 'vars_cb' in locals():
+			seleccion = [f"Objeto {i+1}" for i, v in enumerate(vars_cb) if v.get() == 1]
+		elif 'vars_cb' in globals():
+			seleccion = [f"Objeto {i+1}" for i, v in enumerate(globals()['vars_cb']) if v.get() == 1]
+		if not seleccion:
+			messagebox.showwarning("Aviso", "Mínimo una herramienta")
+			return
+		# Cerrar la lista de selección de herramientas si está visible
+		if 'selection_frame' in globals():
+			sel = globals()['selection_frame']
+			sel.place_forget()
 		# Mostrar resumen en el content_frame
 		for w in content_frame.winfo_children():
 			w.destroy()
@@ -146,8 +160,10 @@ def open_prestamo(event=None):
 		btns = tk.Frame(content_frame, bg='#eeeeee')
 		btns.pack(pady=8)
 		def on_confirm():
-			db.record_loan(data.get('cedula'), data.get('nombre', ''), [], '', None)
-			messagebox.showinfo('Préstamo', f'Préstamo confirmado para {data.get("nombre", "")} ({data.get("cedula", "")})')
+			db.record_loan(data.get('Cédula'), data.get('Nombres', ''), seleccion, '', None)
+			objetos = ', '.join(seleccion)
+			info = f"Préstamo confirmado para {data.get('Nombres', '')} ({data.get('Cédula', '')})\n\nObjetos solicitados: {objetos}"
+			messagebox.showinfo('Préstamo', info)
 			for w in content_frame.winfo_children():
 				w.destroy()
 			ventanai.title('Casillero de pretamos')
@@ -233,7 +249,7 @@ BUTTON_WIDTH = 160
 BUTTON_HEIGHT = 50
 BUTTON_RADIUS = 18
 BUTTON_X = 60
-BUTTON_Y = 500
+BUTTON_Y = 200
 BUTTON_TEXT = "Devolución"
 
 frame_bg = frame1.cget('bg')
@@ -295,12 +311,12 @@ def open_devolucion(event=None):
 	frame_dev = tk.Frame(content_frame, bg='#eeeeee')
 	frame_dev.pack(expand=True, fill='both')
 	open_devolucion.frame_dev = frame_dev
-	tk.Label(frame_dev, text="Para devolver debes escanear el documento", font=('Helvetica', 14, 'bold'), fg='red', bg='#eeeeee').pack(pady=(40,20))
+	tk.Label(frame_dev, text="Para devolver debes escanear el documento", font=('Helvetica', 14, 'bold'), fg='red', bg='#eeeeee').pack(pady=(0,0))
 	btns = tk.Frame(frame_dev, bg='#eeeeee')
-	btns.pack(pady=10)
+	btns.pack(pady=0)
 	def escanear_documento_devolucion():
 		try:
-			clean, data = PDF417.scan_and_get_data()
+			data = PDF417.scan_pdf417()
 		except Exception as e:
 			messagebox.showerror('Error', f'Error al escanear: {e}')
 			return
@@ -339,7 +355,7 @@ BUTTON_WIDTH = 160
 BUTTON_HEIGHT = 50
 BUTTON_RADIUS = 18
 BUTTON_X = 60
-BUTTON_Y = 600
+BUTTON_Y = 300
 BUTTON_TEXT = "Acceso por PIN"
 
 frame_bg = frame1.cget('bg')
@@ -389,7 +405,7 @@ BUTTON_WIDTH = 200
 BUTTON_HEIGHT = 55
 BUTTON_RADIUS = 18
 BUTTON_X = 40
-BUTTON_Y = 700
+BUTTON_Y = 400
 BUTTON_TEXT = "Historial de préstamos"
 
 frame_bg = frame1.cget('bg')
@@ -438,7 +454,7 @@ canvas_btn.config(cursor='hand2')
 db.init_db()
 
 # Ajustes de ventana: mantenemos un tamaño mínimo razonable
-ventanai.minsize(1850, 1080)
+ventanai.minsize(950,600)
 ventanai.resizable(False, False)
 
 ventanai.mainloop()
