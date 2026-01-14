@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import threading
 import tkinter as tk
 import cv2
@@ -551,3 +552,5 @@ content.pack(side="right", fill="both", expand=True)
 show_dashboard()
 
 root.mainloop()
+=======
+>>>>>>> raspb

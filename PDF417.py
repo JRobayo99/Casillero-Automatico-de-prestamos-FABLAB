@@ -75,38 +75,87 @@ def parse_pdf417(text):
 # Configuración de cámara
 # ===============================
 
-def scan_and_get_data():
-    cap = cv2.VideoCapture(2)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    print("Resolución real:", cap.get(3), "x", cap.get(4))
+# --- Callable scanner function ---
+def scan_pdf417():
+    import tkinter as tk
+    from PIL import Image, ImageTk
+    cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 950)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+    x1, y1 = 100, 100
+    x2, y2 = 800, 350
+    result_data = None
+    running = True
 
-    x1, y1 = 500, 150
-    x2, y2 = 1700, 800
-    data = None
-    clean = None
-    try:
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                continue
+    def close_scanner():
+        nonlocal running
+        running = False
+
+    def scan_action():
+        nonlocal result_data, running
+        ret, frame = cap.read()
+        if not ret:
+            return
+        cropped = frame[y1:y2, x1:x2]
+        cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+        results = zxingcpp.read_barcodes(cropped_rgb)
+        if len(results) > 0:
+            r = results[0]
+            clean, extracted = parse_pdf417(r.text)
+            result_data = extracted
+            close_scanner()
+
+    # Tkinter window for camera
+
+    win = tk.Toplevel()
+    win.title("Escáner de documento")
+    win.geometry("950x500")  # Ventana más grande
+    win.resizable(False, False)
+
+    win.grid_rowconfigure(0, weight=1)
+    win.grid_columnconfigure(0, weight=1)
+
+    lmain = tk.Label(win)
+    lmain.grid(row=0, column=0, sticky="nsew", pady=10)
+
+    btn_frame = tk.Frame(win)
+    btn_frame.grid(row=1, column=0, pady=20)
+    btn_scan = tk.Button(
+        btn_frame, text="Escanear documento", command=scan_action,
+        font=("Helvetica", 16, "bold"), bg="#4CAF50", fg="white", width=20, height=2
+    )
+    btn_scan.pack(side="left", padx=20)
+    btn_close = tk.Button(
+        btn_frame, text="Cerrar escáner", command=close_scanner,
+        font=("Helvetica", 16, "bold"), bg="#F44336", fg="white", width=20, height=2
+    )
+    btn_close.pack(side="left", padx=20)
+
+    def show_frame():
+        if not running:
+            win.destroy()
+            cap.release()
+            cv2.destroyAllWindows()
+            return
+        ret, frame = cap.read()
+        if ret:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.imshow("Captura", frame)
-            key = cv2.waitKey(1)
-            if key == ord("s"):
-                cropped = frame[y1:y2, x1:x2]
-                cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
-                results = zxingcpp.read_barcodes(cropped_rgb)
-                if len(results) == 0:
-                    print("No se encontró ningún código PDF417 dentro del recuadro.")
-                else:
-                    r = results[0]
-                    clean, extracted = parse_pdf417(r.text)
-                    data = extracted
-                    break
-            if key == 27:  # ESC
-                break
-    finally:
-        cap.release()
-        cv2.destroyAllWindows()
-    return clean, data
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(rgb)
+            imgtk = ImageTk.PhotoImage(image=img)
+            lmain.imgtk = imgtk
+            lmain.configure(image=imgtk)
+        win.after(20, show_frame)
+
+    show_frame()
+    win.grab_set()
+    win.wait_window()
+    return result_data
+
+if __name__ == "__main__":
+    import tkinter as tk
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+    data = scan_pdf417()
+    print("Resultado escaneo:", data)
+    root.destroy()
