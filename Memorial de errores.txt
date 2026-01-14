@@ -161,3 +161,11 @@ Traceback (most recent call last):
 AttributeError: 'NoneType' object has no attribute 'start'
 
 qt.qpa.plugin: Could not find the Qt platform plugin "wayland" in "/home/fablab/pth310/lib/python3.10/site-packages/cv2/qt/plugins"
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/tkinter/__init__.py", line 1921, in __call__
+    return self.func(*args)
+  File "/home/fablab/pth310/PDF417.py", line 100, in scan_action
+    gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+cv2.error: OpenCV(4.12.0) /io/opencv/modules/imgproc/src/color.cpp:199: error: (-215:Assertion failed) !_src.empty() in function 'cvtColor'
+
