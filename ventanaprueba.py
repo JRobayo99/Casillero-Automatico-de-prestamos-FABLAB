@@ -113,15 +113,26 @@ def open_prestamo(event=None):
 	def update_selection():
 		sel_count = sum(v.get() for v in vars_cb)
 		if sel_count > 3:
-			messagebox.showwarning("Límite", "¡Puedes seleccionar como minimo 1 objeto y máximo 3 objetos!")
+			messagebox.showwarning("Límite", "¡Puedes seleccionar como mínimo 1 objeto y máximo 3 objetos!")
 			for v in reversed(vars_cb):
 				if v.get() == 1:
 					v.set(0)
 					break
 
-	for i in range(5):
+	objetos = [
+		"Multímetro",
+		"Cautín",
+		"Fuente de poder",
+		"Destornillador",
+		"Taladro",
+		"Multitool"
+	]
+
+	varbs_cb = []
+
+	for nombre in objetos:
 		v = tk.IntVar()
-		cb = tk.Checkbutton(sel, text=f"Objeto {i+1}", variable=v, command=update_selection, bg='white')
+		cb = tk.Checkbutton(sel, text=nombre, variable=v, command=update_selection, bg='white')
 		cb.pack(anchor='w', padx=20)
 		vars_cb.append(v)
 
@@ -158,87 +169,29 @@ def open_prestamo(event=None):
 		for k, v in data.items():
 			tk.Label(content_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=2, anchor='w', padx=8)
 		btns = tk.Frame(content_frame, bg='#eeeeee')
-		btns.pack(pady=8)
-		def on_confirm():
-			db.record_loan(data.get('Cédula'), data.get('Nombres', ''), seleccion, '', None)
-			objetos = ', '.join(seleccion)
-			info = f"Préstamo confirmado para {data.get('Nombres', '')} ({data.get('Cédula', '')})\n\nObjetos solicitados: {objetos}"
-			messagebox.showinfo('Préstamo', info)
+		btns.place(x=8, y=20)
+
+
+		def volver_selección():
 			for w in content_frame.winfo_children():
 				w.destroy()
+			sel.place(x=400, y=50, width=400, height=400)
+			ventanai.title("Selección de objetos (máx. 3)")
+
+		def cancelar_prestamo():
+			for w in content_frame.winfo_children():
+				w.destroy()
+			sel.place_forget()
 			ventanai.title('Casillero de pretamos')
-		tk.Button(btns, text='Confirmar préstamo', command=on_confirm).pack(side='left', padx=6)
-		tk.Button(btns, text='Cancelar', command=lambda: [c.destroy() for c in content_frame.winfo_children()]).pack(side='left', padx=6)
-
-	def aceptar():
-		seleccion = [f"Objeto {i+1}" for i, v in enumerate(vars_cb) if v.get() == 1]
-		if len(seleccion) == 0:
-			messagebox.showwarning("Aviso", "Selecciona al menos un objeto")
-			return
-		if len(seleccion) > 3:
-			messagebox.showwarning("Límite", "Puedes seleccionar como máximo 3 objetos")
-			return
-
-		# mostrar resumen en el content_frame
-		for w in content_frame.winfo_children():
-			w.destroy()
-		tk.Label(content_frame, text='Resumen de selección', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(8,4))
-		tk.Label(content_frame, text=f'Objetos seleccionados: {", ".join(seleccion)}', bg='#eeeeee').pack(pady=6, anchor='w', padx=8)
-
-		btns = tk.Frame(content_frame, bg='#eeeeee')
-		btns.pack(pady=8)
-
-		def on_prestar():
-			ok = messagebox.askyesno('Confirmar', '¿Desea prestar las herramientas seleccionadas?')
-			if not ok:
-				return
-			# abrir formulario manual para datos de la persona
-			for w in content_frame.winfo_children():
-				w.destroy()
-			tk.Label(content_frame, text="Ingreso manual de datos", font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(8,4))
-
-			entries = {}
-			fields = ['cedula','nombre','apellido1','apellido2','fecha_nac','rh']
-			for f in fields:
-				fr = tk.Frame(content_frame, bg='#eeeeee')
-				fr.pack(fill='x', padx=8, pady=2)
-				tk.Label(fr, text=f.capitalize()+':', width=15, anchor='w', bg='#eeeeee').pack(side='left')
-				e = tk.Entry(fr)
-				e.pack(side='left', fill='x', expand=True)
-				entries[f] = e
-
-			photo_path = {'path': None}
-			def select_photo():
-				fn = filedialog.askopenfilename(title='Seleccionar foto de la persona', filetypes=[('Imagen', '*.jpg *.jpeg *.png'), ('Todos', '*.*')])
-				if fn:
-					photo_path['path'] = fn
-					messagebox.showinfo('Foto', f'Foto seleccionada: {fn}')
-
-			controls = tk.Frame(content_frame, bg='#eeeeee')
-			controls.pack(pady=8)
-			tk.Button(controls, text='Seleccionar foto', command=select_photo).pack(side='left', padx=6)
-
-			def do_confirm_loan():
-				ced = entries['cedula'].get().strip()
-				nom = entries['nombre'].get().strip()
-				if not ced or not nom:
-					messagebox.showwarning('Aviso', 'Introduce al menos cédula y nombre antes de confirmar')
-					return
-				db.record_loan(ced, nom, seleccion, '', photo_path['path'])
-				messagebox.showinfo('Préstamo', f'Préstamo confirmado para {nom} ({ced})')
-				for w in content_frame.winfo_children():
-					w.destroy()
-				ventanai.title('Casillero de pretamos')
-
-			tk.Button(controls, text='Confirmar préstamo', command=do_confirm_loan).pack(side='left', padx=6)
-			tk.Button(controls, text='Cancelar', command=lambda: [c.destroy() for c in content_frame.winfo_children()]).pack(side='left', padx=6)
-
-		tk.Button(btns, text='Prestar herramienta', command=on_prestar).pack(side='left', padx=6)
-		tk.Button(btns, text='Cancelar', command=lambda: [w.destroy() for w in content_frame.winfo_children()]).pack(side='left', padx=6)
+			
+		tk.Button(btn_frame, text='Cancelar préstamo', command=cancelar_prestamo).pack(side='left', padx=6)
+		tk.Button(btn_frame, text='Volver a selección', command=volver_selección).pack(side='left', padx=6)
 
 	def volver_menu():
 		sel.place_forget()
 		ventanai.title('Casillero de pretamos')
+
+	
 
 	tk.Button(btn_frame, text='Escanear documento', command=escanear_documento).pack(side='left', padx=6)
 	tk.Button(btn_frame, text='Volver', command=volver_menu).pack(side='left', padx=6)
@@ -311,9 +264,10 @@ def open_devolucion(event=None):
 	frame_dev = tk.Frame(content_frame, bg='#eeeeee')
 	frame_dev.pack(expand=True, fill='both')
 	open_devolucion.frame_dev = frame_dev
-	tk.Label(frame_dev, text="Para devolver debes escanear el documento", font=('Helvetica', 14, 'bold'), fg='red', bg='#eeeeee').pack(pady=(0,0))
+	label_info = tk.Label(frame_dev, text="Para devolver debes escanear el documento", font=('Helvetica', 14, 'bold'), fg='red', bg='#eeeeee')
+	label_info.place(x=80, y=100)
 	btns = tk.Frame(frame_dev, bg='#eeeeee')
-	btns.pack(pady=0)
+	btns.place(x=80, y=300)
 	def escanear_documento_devolucion():
 		try:
 			data = PDF417.scan_pdf417()
