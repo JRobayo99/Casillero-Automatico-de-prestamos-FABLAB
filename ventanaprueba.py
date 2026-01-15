@@ -12,7 +12,7 @@ import PDF417
 
 ventanai = tk.Tk()
 
-ventanai.title("Casillero de pretamos")
+ventanai.title("Casillero de prestamos")
 ventanai.geometry("500x300")
 ventanai.config(bg="royal blue")
 
@@ -152,9 +152,9 @@ def open_prestamo(event=None):
 		# Validar que al menos un objeto esté seleccionado
 		seleccion = []
 		if 'vars_cb' in locals():
-			seleccion = [f"Objeto {i+1}" for i, v in enumerate(vars_cb) if v.get() == 1]
+			seleccion = [objetos[i] for i, v in enumerate(vars_cb) if v.get() == 1]
 		elif 'vars_cb' in globals():
-			seleccion = [f"Objeto {i+1}" for i, v in enumerate(globals()['vars_cb']) if v.get() == 1]
+			seleccion = [objetos[i] for i, v in enumerate(globals()['vars_cb']) if v.get() == 1]
 		if not seleccion:
 			messagebox.showwarning("Aviso", "Mínimo una herramienta")
 			return
@@ -165,31 +165,50 @@ def open_prestamo(event=None):
 		# Mostrar resumen en el content_frame
 		for w in content_frame.winfo_children():
 			w.destroy()
-		tk.Label(content_frame, text='Datos detectados', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(8,4))
+		data_frame = tk.Frame(content_frame, bg='#eeeeee')
+		data_frame.pack(fill='both',expand=True,padx=10,pady=10)
+		tk.Label(data_frame, text='Datos detectados: ', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(1,1), anchor='w', padx=10)
 		for k, v in data.items():
-			tk.Label(content_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=2, anchor='w', padx=8)
+			tk.Label(data_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=10, anchor='w', padx=20)
+
+		
 		btns = tk.Frame(content_frame, bg='#eeeeee')
 		btns.place(x=8, y=20)
+		tk.Label(content_frame, text='Herramientas seleccionadas:', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(1,1), anchor='w', padx=10)
+		for material in seleccion:
+			tk.Label(content_frame, text=f'- {material}', bg='#eeeeee').pack(pady=2, anchor='w', padx=8)
 
 
 		def volver_selección():
 			for w in content_frame.winfo_children():
 				w.destroy()
-			sel.place(x=400, y=50, width=400, height=400)
+			sel.place(x=400, y=200, width=400, height=400)
 			ventanai.title("Selección de objetos (máx. 3)")
 
 		def cancelar_prestamo():
 			for w in content_frame.winfo_children():
 				w.destroy()
 			sel.place_forget()
-			ventanai.title('Casillero de pretamos')
+			ventanai.title('Casillero de préstamos')
+
+		def confirmar_prestamo():
+					
+			for w in content_frame.winfo_children():
+				w.destroy()
+			sel.place_forget()
+			ventanai.title('Casillero de préstamos')
+				
+			messagebox.showinfo('Préstamo', '¡Préstamo realizado con éxito!')
+				
 			
-		tk.Button(btn_frame, text='Cancelar préstamo', command=cancelar_prestamo).pack(side='left', padx=6)
-		tk.Button(btn_frame, text='Volver a selección', command=volver_selección).pack(side='left', padx=6)
+
+			tk.Button(btns, text='Confirmar préstamo', font=('Helvetica', 10),width=15, command=confirmar_prestamo).pack(side='left', padx=0,pady = 300)
+			tk.Button(btns, text='Cancelar préstamo', font=('Helvetica', 10), width=15, command=cancelar_prestamo).pack(side='left', padx=6, pady = 300)
+			tk.Button(btns, text='Volver a selección', font=('Helvetica', 10), width=15, command=volver_selección).pack(side='right', padx=30, pady = 300)
 
 	def volver_menu():
 		sel.place_forget()
-		ventanai.title('Casillero de pretamos')
+		ventanai.title('Casillero de préstamos')
 
 	
 
