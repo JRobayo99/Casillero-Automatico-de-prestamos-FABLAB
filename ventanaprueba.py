@@ -162,22 +162,27 @@ def open_prestamo(event=None):
 		if 'selection_frame' in globals():
 			sel = globals()['selection_frame']
 			sel.place_forget()
+
 		# Mostrar resumen en el content_frame
 		for w in content_frame.winfo_children():
 			w.destroy()
 		data_frame = tk.Frame(content_frame, bg='#eeeeee')
-		data_frame.pack(fill='both',expand=True,padx=10,pady=10)
-		tk.Label(data_frame, text='Datos detectados: ', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(1,1), anchor='w', padx=10)
+		data_frame.pack(fill='x',padx=10,pady=10)
+
+		tk.Label(data_frame, text='Datos detectados: ', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack( anchor='w')
 		for k, v in data.items():
-			tk.Label(data_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=10, anchor='w', padx=20)
+			tk.Label(data_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=2, anchor='w', padx=15)
 
 		
-		btns = tk.Frame(content_frame, bg='#eeeeee')
-		btns.place(x=8, y=20)
-		tk.Label(content_frame, text='Herramientas seleccionadas:', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack(pady=(1,1), anchor='w', padx=10)
-		for material in seleccion:
-			tk.Label(content_frame, text=f'- {material}', bg='#eeeeee').pack(pady=2, anchor='w', padx=8)
+		tools_frame = tk.Frame(content_frame, bg='#eeeeee')
+		tools_frame.pack(fill='x', padx=10, pady=10)
 
+		tk.Label(tools_frame, text='Herramientas seleccionadas:', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack( anchor='w')
+		for material in seleccion:
+			tk.Label(tools_frame, text=f'- {material}', bg='#eeeeee').pack(anchor='w', padx=15)
+
+		buttons_frame = tk.Frame(content_frame, bg='#eeeeee')
+		buttons_frame.pack(side='bottom', pady=15)
 
 		def volver_selección():
 			for w in content_frame.winfo_children():
@@ -202,9 +207,9 @@ def open_prestamo(event=None):
 				
 			
 
-			tk.Button(btns, text='Confirmar préstamo', font=('Helvetica', 10),width=15, command=confirmar_prestamo).pack(side='left', padx=0,pady = 300)
-			tk.Button(btns, text='Cancelar préstamo', font=('Helvetica', 10), width=15, command=cancelar_prestamo).pack(side='left', padx=6, pady = 300)
-			tk.Button(btns, text='Volver a selección', font=('Helvetica', 10), width=15, command=volver_selección).pack(side='right', padx=30, pady = 300)
+		tk.Button(buttons_frame, text='Confirmar préstamo', font=('Helvetica', 10),width=15, command=confirmar_prestamo).pack(side='left', padx=6)
+		tk.Button(buttons_frame, text='Cancelar préstamo', font=('Helvetica', 10), width=15, command=cancelar_prestamo).pack(side='left', padx=6)
+		tk.Button(buttons_frame, text='Volver a selección', font=('Helvetica', 10), width=15, command=volver_selección).pack(side='left', padx=6)
 
 	def volver_menu():
 		sel.place_forget()
