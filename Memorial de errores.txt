@@ -169,3 +169,17 @@ Traceback (most recent call last):
     gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
 cv2.error: OpenCV(4.12.0) /io/opencv/modules/imgproc/src/color.cpp:199: error: (-215:Assertion failed) !_src.empty() in function 'cvtColor'
 
+
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/tkinter/__init__.py", line 1921, in __call__
+    return self.func(*args)
+  File "/home/fablab/pth310/Fotopersona.py", line 50, in tomar_foto
+    os.makerdirs("fotos", exist_ok=True)
+AttributeError: module 'os' has no attribute 'makerdirs'
+Traceback (most recent call last):
+  File "/home/fablab/pth310/Fotopersona.py", line 72, in <module>
+    root.geometry ("950x600")
+  File "/usr/local/lib/python3.10/tkinter/__init__.py", line 2073, in wm_geometry
+    return self.tk.call('wm', 'geometry', self._w, newGeometry)
+_tkinter.TclError: can't invoke "wm" command: application has been destroyed
