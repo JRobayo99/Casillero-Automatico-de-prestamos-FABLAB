@@ -5,7 +5,7 @@ import tkinter.font as tkfont
 from tkinter import messagebox, filedialog
 import db
 import PDF417
-import subprocess
+
 
 # Optional libraries for scanner and image preview
 
@@ -139,6 +139,8 @@ def open_prestamo(event=None):
 	btn_frame = tk.Frame(sel, bg='white')
 	btn_frame.pack(pady=12)
 
+	
+
 	def escanear_documento():
 		# Llama al escáner y obtiene los datos
 		try:
@@ -164,56 +166,79 @@ def open_prestamo(event=None):
 			sel.place_forget()
 
 		# Mostrar resumen en el content_frame
+
+		
+		
 		content_frame = tk.Frame(ventanai, bg='#eeeeee')
 		content_frame.place(x=450, y=0, width=500, height=600)
+		
 
 		for w in content_frame.winfo_children():
 			w.destroy()
-		data_frame = tk.Frame(content_frame, bg='#eeeeee')
-		data_frame.pack(fill='x',pady=10, padx=10)
 
+		global pantalla_actual
+		pantalla_actual = None
+		
+		data_frame = tk.Frame(pantalla_actual, bg='#eeeeee')
+		data_frame.pack(fill='x', pady=10, padx=10)
+
+		
 
 		tk.Label(data_frame, text='Datos detectados: ', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack( anchor='w')
 		for k, v in data.items():
 			tk.Label(data_frame, text=f'{k}: {v}', bg='#eeeeee').pack(pady=2, anchor='w', padx=15)
 
-		
-		tools_frame = tk.Frame(content_frame, bg='#eeeeee')
+
+
+		tools_frame = tk.Frame(pantalla_actual, bg='#eeeeee')
 		tools_frame.pack(fill='x', padx=10, pady=10)
 
 		tk.Label(tools_frame, text='Herramientas seleccionadas:', font=('Helvetica', 12, 'bold'), bg='#eeeeee').pack( anchor='w')
 		for material in seleccion:
 			tk.Label(tools_frame, text=f'- {material}', bg='#eeeeee').pack(anchor='w', padx=15)
 
-		buttons_frame = tk.Frame(content_frame, bg='#eeeeee')
+		buttons_frame = tk.Frame(pantalla_actual, bg='#eeeeee')
 		buttons_frame.pack(side='bottom', fill= 'x', pady=15)
 
-		def ir_a_foto_persona():
+		
+		if pantalla_actual is not None:
+			pantalla_actual.destroy()
+		
+		pantalla_actual = tk.Frame(content_frame, bg='#eeeeee')
+		pantalla_actual.pack(fill='both', expand=True)
+		
+		
 
-			messagebox.showinfo('Verificación de identidad', 'Se abrirá la cámara para verificar la identidad.')
+		def volver_menu_principal():
 
-			try:
-				subprocess.Popen(['python', 'Fotopersona.py'])
-			except Exception as e:
-				messagebox.showerror('Error', f'No se pudo abrir la cámara: {e}')
-				return
-			
-			messagebox.showinfo('Porceso completado','Ya pueds tomar las herramientas')
+			global resultados_frame
+			if resultados_frame is not None:
+				resultados_frame.destroy()
+				resultados_frame = None
+
+			if 'selection_frame' in globals():
+				try:
+					'selection_frame'.pack_forget()
+				except:
+					pass
+
+			for w in content_frame.winfo_children():
+				w.destroy()
+
+			ventanai.title('Casillero de préstamos')
+
 
 		def volver_selección():
 			for w in content_frame.winfo_children():
 				w.destroy()
-			sel.place(x=400, y=200, width=400, height=400)
+			sel.place(x=400, y=50, width=400, height=400)
 			ventanai.title("Selección de objetos (máx. 3)")
 
 		def cancelar_prestamo():
-			for w in content_frame.winfo_children():
-				w.destroy()
-			sel.place_forget()
-			ventanai.title('Casillero de préstamos')
+			volver_menu_principal()
 
 		def confirmar_prestamo():
-					
+
 			for w in content_frame.winfo_children():
 				w.destroy()
 			sel.place_forget()
@@ -226,7 +251,7 @@ def open_prestamo(event=None):
 		tk.Button(buttons_frame, text='Confirmar préstamo', font=('Helvetica', 10),width=15, command=confirmar_prestamo).pack(side='left', padx=6)
 		tk.Button(buttons_frame, text='Cancelar préstamo', font=('Helvetica', 10), width=15, command=cancelar_prestamo).pack(side='left', padx=6)
 		tk.Button(buttons_frame, text='Volver a selección', font=('Helvetica', 10), width=15, command=volver_selección).pack(side='left', padx=6)
-		tk.Button(buttons_frame, text='Verificar identidad', font=('Helvetica', 10), width=15, command=ir_a_foto_persona).pack(side='left', padx=6)
+		
 
 		
 	def volver_menu():
