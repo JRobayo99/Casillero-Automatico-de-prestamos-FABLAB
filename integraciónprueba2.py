@@ -33,6 +33,8 @@ def clear_content():
  #===============================
 # Función de parsing PDF417 (igual a la tuya)
 # ===============================
+
+
 def parse_pdf417(text):
     clean = re.sub(r'[\x00-\x1F\x7F-\x9F]', ' ', text)
     clean = clean.replace("NUL", " ")
@@ -72,61 +74,12 @@ def parse_pdf417(text):
 
     return clean, data
 
-def datos_validos(data):
-    requeridos = ["cedula", "apellido1", "apellido2", "nombre"]
-    for r in requeridos:
-        if not data.get(r):
-            return False
-    return True
+
 
 
 # ==========================================================
 # FUNCIÓN PRINCIPAL DEL ESCÁNER (ejecutada en un hilo)
 # ==========================================================
-def iniciar_lector_pdf417(callback):
-    def worker():
-        cap = cv2.VideoCapture(0)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-
-        data = None 
-
-        x1, y1 = 500, 150
-        x2, y2 = 1700, 800
-
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                continue
-
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.imshow("Captura Cédula", frame)
-
-            cv2.waitKey(1)
-
-            # --- AUTO-DETECCIÓN ---
-            cropped = frame[y1:y2, x1:x2]
-            cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
-            results = zxingcpp.read_barcodes(cropped_rgb)
-
-            if len(results) > 0:
-                r = results[0]
-                clean, data = parse_pdf417(r.text)
-
-            # Validar datos (evitar Nones)
-            if data is not None and datos_validos(data):
-                cap.release()
-                cv2.destroyAllWindows()
-                callback(data)
-                return
-            else:
-                print("Lectura incompleta, reintentando...")
-
-
-            cap.release()
-            cv2.destroyAllWindows()
-
-    threading.Thread(target=worker).start()
 
 
 def callback_devolucion(data):

@@ -169,4 +169,4 @@ txt_log = Text(root, height=10)
 txt_log.pack(fill="both", expand=False, padx=8, pady=8)
 
 root.protocol("WM_DELETE_WINDOW", lambda: (apagar_camara(), root.destroy()))
-root.mainloop()
+root.ma

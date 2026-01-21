@@ -77,6 +77,7 @@ def parse_pdf417(text):
 stop_scanner = False
 tomar_foto = False   # variable global para facilitar manejo
 scanner_thread = None  # guarda el hilo del scanner actual (si existe)
+label = None  # widget global para los encabezados de la interfaz
 
 
 def cerrar_scanner():
@@ -86,11 +87,14 @@ def cerrar_scanner():
     global scanner_thread
     # intentar esperar a que el hilo termine para liberar la cámara
     try:
-        if scanner_thread is not None and scanner_thread.is_alive():
-            scanner_thread.join(timeout=1.0)
+        # No intentar hacer join si el hilo actual es el mismo (evita deadlock)
+        if scanner_thread is not None and scanner_thread.is_alive() and scanner_thread is not threading.current_thread():
+            scanner_thread.join(timeout=3.0)
+        # Sólo limpiar la referencia si ya terminó
+        if scanner_thread is not None and not scanner_thread.is_alive():
+            scanner_thread = None
     except Exception:
         pass
-    scanner_thread = None
     try:
         cv2.destroyAllWindows()
     except:
@@ -111,7 +115,15 @@ def iniciar_lector_pdf417(callback):
     def worker():
         global stop_scanner, tomar_foto, scanner_thread
         try:
-            cap = cv2.VideoCapture(0)
+            # Usar backend CAP_DSHOW en Windows para evitar problemas de bloqueo de la cámara
+            try:
+                backend = cv2.CAP_DSHOW
+            except AttributeError:
+                backend = None
+            if backend is not None:
+                cap = cv2.VideoCapture(0, backend)
+            else:
+                cap = cv2.VideoCapture(0)
             # Validar que la cámara se abrió correctamente
             if not cap.isOpened():
                 root.after(0, lambda: messagebox.showerror("Error", "No se pudo acceder a la cámara. Revisa que ninguna otra aplicación la esté usando o que el dispositivo esté conectado."))
@@ -143,7 +155,9 @@ def iniciar_lector_pdf417(callback):
                     results = zxingcpp.read_barcodes(cropped_rgb)
 
                     if len(results) > 0:
-                        cerrar_scanner()
+                        # Señalar que debe detenerse; NO llamamos a cerrar_scanner() desde aquí
+                        # para evitar que el hilo intente hacer join a sí mismo.
+                        stop_scanner = True
                         r = results[0]
                         clean, data = parse_pdf417(r.text)
                         root.after(0, lambda: callback(data))
@@ -470,8 +484,9 @@ def btn_devolver():
 # -------------------- DASHBOARD --------------------
 def show_dashboard():
     clear_content()
-    tk.Label(content, text="🔧🪛⚙️🛠️ Préstamo y devolución de herramientas",
-             font=("Arial", 30), bg="#eeeeee").pack(pady=20)
+    global label
+    label = tk.Label(content, text="🔧🪛⚙️🛠️ Préstamo y devolución de herramientas", font=("Arial", 30), bg="#eeeeee")
+    label.pack(pady=20)
 
     tk.Button(content, text="Realizar Préstamo", font=("Arial", 20),
               bg="#00adb5", command=btn_presta
@@ -484,9 +499,10 @@ def show_dashboard():
 
 # -------------------- MENÚS --------------------
 def show_profile():
+    global label
     clear_content()
-    tk.Label(content, text="🪪✅ Ingreso de usuarios ",
-             font=("Arial", 30), bg="#eeeeee").pack(expand=True)
+    label = tk.Label(content, text="🪪✅ Ingreso de usuarios ", font=("Arial", 30), bg="#eeeeee")
+    label.pack(expand=True)
 
     tk.Label(content, text="Usuario", bg="#eeeeee").pack(anchor="w", padx=20)
     tk.Entry(content).pack(padx=20, fill="x")
@@ -496,21 +512,24 @@ def show_profile():
 
 
 def show_picture():
+    global label
     clear_content()
-    tk.Label(content, text="📅🛠️⚙️ Historial de prestamos",
-             font=("Arial", 30), bg="#eeeeee").pack(expand=True)
+    label = tk.Label(content, text="📅🛠️⚙️ Historial de prestamos", font=("Arial", 30), bg="#eeeeee")
+    label.pack(expand=True)
 
 
 def show_info():
+    global label
     clear_content()
-    tk.Label(content, text="Información",
-             font=("Arial", 30), bg="#eeeeee").pack(expand=True)
+    label = tk.Label(content, text="Información", font=("Arial", 30), bg="#eeeeee")
+    label.pack(expand=True)
 
 
 def show_settings():
+    global label
     clear_content()
-    tk.Label(content, text="Configuración",
-             font=("Arial", 30), bg="#eeeeee").pack(expand=True)
+    label = tk.Label(content, text="Configuración", font=("Arial", 30), bg="#eeeeee")
+    label.pack(expand=True)
 
 
 def select_menu(option):
