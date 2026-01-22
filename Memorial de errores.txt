@@ -193,3 +193,6 @@ WARNING: apt does not have a stable CLI interface. Use with caution in scripts.
 
 python3-lgpio/jammy,now 0.1.6.1-0ubuntu3 arm64 [instalado]
 
+/usr/lib/python3/dist-packages/lgpio.py
+
+
