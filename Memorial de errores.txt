@@ -196,3 +196,12 @@ python3-lgpio/jammy,now 0.1.6.1-0ubuntu3 arm64 [instalado]
 /usr/lib/python3/dist-packages/lgpio.py
 
 
+Traceback (most recent call last):
+  File "/home/fablabean/Escritorio/Prácticas/pth310/bin/PruebaRFID.py", line 4, in <module>
+    reader =SimpleMFRC522()
+  File "/home/fablabean/Escritorio/Prácticas/pth310/lib/python3.10/site-packages/mfrc522/SimpleMFRC522.py", line 21, in __init__
+    self.MFRC522 = MFRC522()
+  File "/home/fablabean/Escritorio/Prácticas/pth310/lib/python3.10/site-packages/mfrc522/MFRC522.py", line 124, in __init__
+    self.spi.open(bus, device)
+PermissionError: [Errno 13] Permission denied
+
