@@ -218,4 +218,23 @@ Traceback (most recent call last):
 RuntimeError: ws2811_init failed with code -9 (Failed to create mailbox device)
 Segmentation fault (core dumped)
 
+<<<<<<< HEAD
+>>>>>>> raspb2
+=======
+
+Traceback (most recent call last):
+  File "/home/fablabean/Escritorio/Prácticas/pth310/Prueba solenoides.py", line 6, in <module>
+    i2c = busio.I2C(board.SCL, board.SDA)
+  File "/home/fablabean/.local/lib/python3.10/site-packages/busio.py", line 36, in __init__
+    self.init(scl, sda, frequency)
+  File "/home/fablabean/.local/lib/python3.10/site-packages/busio.py", line 173, in init
+    self._i2c = _I2C(portId, mode=_I2C.MASTER, baudrate=frequency)
+  File "/home/fablabean/.local/lib/python3.10/site-packages/adafruit_blinka/microcontroller/generic_linux/i2c.py", line 35, in __init__
+    self._i2c_bus = smbus.SMBus(bus_num)
+  File "/home/fablabean/.local/lib/python3.10/site-packages/Adafruit_PureIO/smbus.py", line 114, in __init__
+    self.open(bus)
+  File "/home/fablabean/.local/lib/python3.10/site-packages/Adafruit_PureIO/smbus.py", line 140, in open
+    self._device = open(f"/dev/i2c-{bus}", "r+b", buffering=0)
+PermissionError: [Errno 13] Permission denied: '/dev/i2c-1'
+
 >>>>>>> raspb2
