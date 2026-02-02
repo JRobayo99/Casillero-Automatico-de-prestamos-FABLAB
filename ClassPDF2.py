@@ -10,11 +10,20 @@ from datetime import datetime
 # ===============================
 # Función para limpiar y extraer datos de la cédula
 # ===============================
+<<<<<<< HEAD
 class cedula_amarilla:
 
     def __init__(self, parse_pdf417, EscanerPDF417):
             self.parse_pdf417 = parse_pdf417
             self.EscanerPDF417 = EscanerPDF417
+=======
+class cedula_amarilla_datos:
+
+    def __init__(self, parse_pdf417):
+            
+            self.parse_pdf417 = parse_pdf417
+            
+>>>>>>> pcdavid
 
     def parse_pdf417(self, text):
             # Quitar caracteres no imprimibles
@@ -37,12 +46,15 @@ class cedula_amarilla:
             data["cedula"] = None
             cedula = None
 
+<<<<<<< HEAD
         # ===============================
         # 2. Sexo + fecha
         # ===============================
         
 
             
+=======
+>>>>>>> pcdavid
 
         # ===============================
         # 3. RH
@@ -108,7 +120,12 @@ class cedula_amarilla:
         return clean, data
 
 
+<<<<<<< HEAD
     class EscanerPDF417:
+=======
+class EscanerPDF417:
+        
+>>>>>>> pcdavid
         """Interfaz de Tkinter para escanear códigos PDF417"""
 
         def __init__(self, root):
@@ -276,7 +293,11 @@ class cedula_amarilla:
                         self.root.after(0, self.agregar_info, f"Formato: {r.format}", "dato")
 
                         # Limpieza y extracción
+<<<<<<< HEAD
                         clean, extracted = parse_pdf417(r.text)
+=======
+                        clean, extracted = self.parse_pdf417(r.text)
+>>>>>>> pcdavid
 
                         # Mostrar datos extraídos
                         self.root.after(0, self.agregar_info, "\nDATA EXTRAÍDA:", "titulo")
@@ -303,6 +324,7 @@ class cedula_amarilla:
             self.root.destroy()
 
 
+<<<<<<< HEAD
     def main():
         root = tk.Tk()
         app = EscanerPDF417(root)
@@ -312,3 +334,14 @@ class cedula_amarilla:
 
     if __name__ == "__main__":
         main()
+=======
+def main():
+    root = tk.Tk()
+    app = EscanerPDF417(root)
+    root.protocol("WM_DELETE_WINDOW", app.on_closing)
+    root.mainloop()
+
+
+if __name__ == "__main__":
+     main()
+>>>>>>> pcdavid
