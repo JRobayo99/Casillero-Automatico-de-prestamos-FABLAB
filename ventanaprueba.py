@@ -1,9 +1,6 @@
-import pandas as pd
-import db_prestamos_csv
 import tkinter as tk
 import tkinter.font as tkfont
 from tkinter import messagebox, filedialog
-
 import PDF417
 
 
@@ -471,7 +468,6 @@ canvas_btn.bind('<Button-1>', lambda e: print('Historial pulsado'))
 canvas_btn.config(cursor='hand2')
 
 
-# Inicializar base de datos
 
 
 # Ajustes de ventana: mantenemos un tamaño mínimo razonable

@@ -10,20 +10,11 @@ from datetime import datetime
 # ===============================
 # Función para limpiar y extraer datos de la cédula
 # ===============================
-<<<<<<< HEAD
 class cedula_amarilla:
 
     def __init__(self, parse_pdf417, EscanerPDF417):
             self.parse_pdf417 = parse_pdf417
             self.EscanerPDF417 = EscanerPDF417
-=======
-class cedula_amarilla_datos:
-
-    def __init__(self, parse_pdf417):
-            
-            self.parse_pdf417 = parse_pdf417
-            
->>>>>>> pcdavid
 
     def parse_pdf417(self, text):
             # Quitar caracteres no imprimibles
@@ -46,15 +37,12 @@ class cedula_amarilla_datos:
             data["cedula"] = None
             cedula = None
 
-<<<<<<< HEAD
         # ===============================
         # 2. Sexo + fecha
         # ===============================
         
 
             
-=======
->>>>>>> pcdavid
 
         # ===============================
         # 3. RH
@@ -120,74 +108,69 @@ class cedula_amarilla_datos:
         return clean, data
 
 
-<<<<<<< HEAD
-    class EscanerPDF417:
-=======
 class EscanerPDF417:
-        
->>>>>>> pcdavid
         """Interfaz de Tkinter para escanear códigos PDF417"""
 
         def __init__(self, root):
             self.root = root
             self.root.title("Escáner de Documentos PDF417")
             
-            # Obtener dimensiones de la pantalla
-            pantalla_ancho = self.root.winfo_screenwidth()
-            pantalla_alto = self.root.winfo_screenheight()
+        # Obtener dimensiones de la pantalla
+        pantalla_ancho = self.root.winfo_screenwidth()
+        pantalla_alto = self.root.winfo_screenheight()
             
             # Establecer tamaño de ventana (90% de la pantalla)
-            ventana_ancho = int(pantalla_ancho * 0.9)
-            ventana_alto = int(pantalla_alto * 0.9)
+        ventana_ancho = int(pantalla_ancho * 0.9)
+        ventana_alto = int(pantalla_alto * 0.9)
             
-            self.root.geometry(f"{ventana_ancho}x{ventana_alto}")
-            self.root.configure(bg="#2c3e50")
+        self.root.geometry(f"{ventana_ancho}x{ventana_alto}")
+        self.root.configure(bg="#2c3e50")
             
             # Centrar ventana
-            pos_x = (pantalla_ancho - ventana_ancho) // 2
-            pos_y = (pantalla_alto - ventana_alto) // 2
-            self.root.geometry(f"{ventana_ancho}x{ventana_alto}+{pos_x}+{pos_y}")
+        pos_x = (pantalla_ancho - ventana_ancho) // 2
+        pos_y = (pantalla_alto - ventana_alto) // 2
+        self.root.geometry(f"{ventana_ancho}x{ventana_alto}+{pos_x}+{pos_y}")
 
             # Variables de control
-            self.escaneando = False
-            self.cap = None
-            self.foto = None
+        self.escaneando = False
+        self.cap = None
+        self.foto = None
 
             # Crear interfaz
-            self.crear_interfaz()
+        self.crear_interfaz()
 
         def crear_interfaz(self):
-            """Crea la interfaz gráfica"""
+                """Crea la interfaz gráfica"""
 
-            # Marco principal
-            marco_principal = ttk.Frame(self.root)
-            marco_principal.pack(fill="both", expand=True, padx=10, pady=10)
+                # Marco principal
+             marco_principal = ttk.Frame(self.root)
+             marco_principal.pack(fill="both", expand=True, padx=10, pady=10)
 
-            # Título
+                # Título
             titulo = ttk.Label(marco_principal, text="ESCÁNER DE DOCUMENTOS PDF417 - AUTOMÁTICO",
                             font=("Helvetica", 24, "bold"))
             titulo.grid(row=0, column=0, columnspan=2, pady=(0, 10))
 
-            # ============ PANEL IZQUIERDO: VIDEO ============
+                # ============ PANEL IZQUIERDO: VIDEO ============
             marco_video = ttk.LabelFrame(marco_principal, text="Vista de Cámara", padding=10)
             marco_video.grid(row=1, column=0, sticky="nsew", padx=(0, 5), pady=5)
 
-            # Label para el video
+                # Label para el video
             self.label_video = ttk.Label(marco_video, background="#000000")
             self.label_video.pack(fill="both", expand=True)
 
-            # ============ PANEL DERECHO: INFORMACIÓN ============
+                # ============ PANEL DERECHO: INFORMACIÓN ============
             marco_info = ttk.LabelFrame(marco_principal, text="Información de Escaneo", padding=15)
             marco_info.grid(row=1, column=1, sticky="nsew", padx=(5, 0), pady=5)
 
-            # Información de estado
+                # Información de estado
             ttk.Label(marco_info, text="DETECCIONES:", font=("Helvetica", 12, "bold")).pack(anchor="w", pady=(10, 5))
 
             self.text_info = scrolledtext.ScrolledText(marco_info, height=25, width=40,
                                                     font=("Courier", 10), wrap="word")
             self.text_info.pack(fill="both", expand=True, pady=10)
 
-            # Configurar estilos de texto
+                # Configurar estilos de texto
             self.text_info.tag_configure("titulo", foreground="green", font=("Courier", 11, "bold"))
             self.text_info.tag_configure("error", foreground="red", font=("Courier", 10, "bold"))
             self.text_info.tag_configure("exito", foreground="lightgreen", font=("Courier", 10, "bold"))
@@ -196,29 +179,29 @@ class EscanerPDF417:
 
             self.text_info.config(state="disabled", bg="#1e1e1e", fg="#00ff00")
 
-            # Configurar pesos de grid
+                # Configurar pesos de grid
             marco_principal.columnconfigure(0, weight=2)
             marco_principal.columnconfigure(1, weight=1)
             marco_principal.rowconfigure(1, weight=1)
 
-            # Botón para cerrar/volver (mantener siempre disponible)
+                # Botón para cerrar/volver (mantener siempre disponible)
             boton_cerrar = ttk.Button(marco_info, text="Volver / Cerrar Escáner", command=self.on_closing)
             boton_cerrar.pack(pady=(8, 0))
 
-            # Iniciar captura de video
+                # Iniciar captura de video
             self.iniciar_captura()
 
         def iniciar_captura(self):
-            """Inicia la captura de video de la cámara"""
+                """Inicia la captura de video de la cámara"""
             try:
                 self.cap = cv2.VideoCapture(0)
                 self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
                 self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-                
+                    
                 self.agregar_info("SISTEMA INICIALIZADO", "exito")
                 self.agregar_info(f"Resolución: {int(self.cap.get(3))} x {int(self.cap.get(4))}", "dato")
-                
-                # Iniciar thread de video
+                    
+                    # Iniciar thread de video
                 thread = threading.Thread(target=self._actualizar_video, daemon=True)
                 thread.start()
 
@@ -227,8 +210,8 @@ class EscanerPDF417:
                 messagebox.showerror("Error", f"No se pudo inicializar la cámara: {e}")
 
         def _actualizar_video(self):
-            """Actualiza el video en la interfaz y escanea automáticamente"""
-            # Recuadro
+                """Actualiza el video en la interfaz y escanea automáticamente"""
+                # Recuadro
             x1, y1 = 500, 150
             x2, y2 = 1700, 800
             contador_frames = 0
@@ -243,31 +226,31 @@ class EscanerPDF417:
                     if not ret:
                         break
 
-                    # Dibujar recuadro
+                        # Dibujar recuadro
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
 
-                    # Redimensionar para mostrar en tkinter
+                        # Redimensionar para mostrar en tkinter
                     frame_resizado = cv2.resize(frame, (640, 360))
-                    
-                    # Convertir BGR a RGB
+                        
+                        # Convertir BGR a RGB
                     frame_rgb = cv2.cvtColor(frame_resizado, cv2.COLOR_BGR2RGB)
 
-                    # Convertir a PhotoImage
+                        # Convertir a PhotoImage
                     img = Image.fromarray(frame_rgb)
                     photo = ImageTk.PhotoImage(img)
 
-                    # Actualizar label
+                        # Actualizar label
                     self.label_video.config(image=photo)
                     self.label_video.image = photo
 
                     self.root.update_idletasks()
 
-                    # Realizar escaneo automático cada N frames
+                        # Realizar escaneo automático cada N frames
                     contador_frames += 1
                     if contador_frames >= intervalo_escaneo:
                         contador_frames = 0
                         self._escaneo_automatico(frame, x1, y1, x2, y2)
-                    
+                        
                 except Exception as e:
                     print(f"Error en actualización de video: {e}")
                     break
@@ -275,11 +258,11 @@ class EscanerPDF417:
         def _escaneo_automatico(self, frame, x1, y1, x2, y2):
             """Realiza escaneo automático sin bloquear la interfaz"""
             try:
-                # Recortar región
+                    # Recortar región
                 cropped = frame[y1:y2, x1:x2]
                 cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
 
-                # Decodificar
+                    # Decodificar
                 results = zxingcpp.read_barcodes(cropped_rgb)
 
                 if len(results) > 0:
@@ -292,14 +275,10 @@ class EscanerPDF417:
                         self.root.after(0, self.agregar_info, f"\n--- Código {i+1} ---", "titulo")
                         self.root.after(0, self.agregar_info, f"Formato: {r.format}", "dato")
 
-                        # Limpieza y extracción
-<<<<<<< HEAD
-                        clean, extracted = parse_pdf417(r.text)
-=======
+                            # Limpieza y extracción
                         clean, extracted = self.parse_pdf417(r.text)
->>>>>>> pcdavid
 
-                        # Mostrar datos extraídos
+                            # Mostrar datos extraídos
                         self.root.after(0, self.agregar_info, "\nDATA EXTRAÍDA:", "titulo")
 
                         for key, val in extracted.items():
@@ -310,31 +289,20 @@ class EscanerPDF417:
                 pass  # Ignorar errores de escaneo para no saturar el log
 
         def agregar_info(self, texto, tag="dato"):
-            """Agrega información al panel de texto"""
+                """Agrega información al panel de texto"""
             self.text_info.config(state="normal")
             self.text_info.insert("end", texto + "\n", tag)
             self.text_info.see("end")
             self.text_info.config(state="disabled")
 
         def on_closing(self):
-            """Maneja el cierre de la ventana"""
+                """Maneja el cierre de la ventana"""
             if self.cap is not None:
                 self.cap.release()
             cv2.destroyAllWindows()
             self.root.destroy()
 
 
-<<<<<<< HEAD
-    def main():
-        root = tk.Tk()
-        app = EscanerPDF417(root)
-        root.protocol("WM_DELETE_WINDOW", app.on_closing)
-        root.mainloop()
-
-
-    if __name__ == "__main__":
-        main()
-=======
 def main():
     root = tk.Tk()
     app = EscanerPDF417(root)
@@ -343,5 +311,4 @@ def main():
 
 
 if __name__ == "__main__":
-     main()
->>>>>>> pcdavid
+    main()

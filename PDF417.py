@@ -1,6 +1,8 @@
 import cv2
 import zxingcpp
 import re
+import tkinter as tk
+from PIL import Image, ImageTk
 
 # ===============================
 # Función para limpiar y extraer datos de la cédula
@@ -77,8 +79,7 @@ def parse_pdf417(text):
 
 # --- Callable scanner function ---
 def scan_pdf417():
-    import tkinter as tk
-    from PIL import Image, ImageTk
+    
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 950)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)

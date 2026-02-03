@@ -4,8 +4,8 @@ from mfrc522 import SimpleMFRC522
 reader =SimpleMFRC522()
 
 try:
-    print("Place your card near the reader")
+    print("Acerca el pin al lector")
     id, text = reader.read()
-    print ("ID: %s\nText: %s" % (id, text))
+    print ("ID: %s\nText: Pin identicado %s" % (id, text))
 finally:
     GPIO.cleanup
