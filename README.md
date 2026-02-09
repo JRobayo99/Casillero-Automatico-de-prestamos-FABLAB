@@ -2,9 +2,9 @@
 
 ## Introducción:
 
-El proposito de la automatización de porcesos es beneficiar la porductividad y calidad de vida de los colaboradores, cuando se realicen prestamos de hermamientas,
-en si los tableros de automaticos no solo tienen un uso de prestamo si no también en usos comerciales como uso alternitvo principal, este program hacer parte de un proyecto de naturaleza similar,
-casillero automatico de prestamos para el FABLAB, es utiliza una serie de tecnológias asociadas entre si para dar uan mejor experiencia al usuario final que es el estudiante.
+El proposito de la automatización de procesos es beneficiar la porductividad y calidad de vida de los colaboradores, cuando se realicen prestamos de herramientas,
+en si los tableros de automáticos no solo tienen un uso de prestamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
+casillero automático de préstamos para el FABLAB, es utiliza una serie de tecnológias asociadas entre si para dar una mejor experiencia al usuario final que es el estudiante.
  
 # Especificaciones técnicas ⚙️🛠️
 
@@ -14,18 +14,18 @@ casillero automatico de prestamos para el FABLAB, es utiliza una serie de tecnol
 - Raspebrry PI 4 model B 🍇​🍓​
 - Modulo MCP23017 (Modulo extensor de 16 pines)
 - Pantalla touch de (1024x600) 🖥️​
-- Camara web de alta definición con enfoque manual (1920x1080) 📷​
-- Camara web cam con autoenfoque 📷​ 
+- Cámara web de alta definición con enfoque manual (1920x1080) 📷​
+- Cámara web cam con autoenfoque 📷​ 
 - Solenoides
 - Módulo rele 5V -12
 
 ### Software. 💻👨‍💻​​👩‍💻​​​
 - Python version 3.10 🐍​
-- Rapios arm_g4 (Bullseye-arm64)
+- Rapios arm_g4 (Bullseye-arm64) --> descargar aquí ( https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2023-05-03/ )
 #### Librerías de Python. 🗂️​🐍​
-  - zxingcpp (Lector de código de barras)
-  - opencv (procesador de imagenes)
-  - adafruit (Soporte de modulos de extensión MCP2027)
+  - Zxingcpp (Lector de código de barras)
+  - Opencv (procesador de imagenes)
+  - Adafruit, Adafruit blinka (Soporte de modulos de extensión MCP2027)
   - Tkinter (interfaz gráfica)
   - Pandas (Gestión de base de datos)
   - IC2 (IC2 tools, IC2-dev, IC2-bcm2835)
