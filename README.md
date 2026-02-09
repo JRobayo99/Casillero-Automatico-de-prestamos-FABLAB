@@ -6,7 +6,7 @@ El proposito de la automatización de procesos es beneficiar la porductividad y 
 en si los tableros de automáticos no solo tienen un uso de préstamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
 casillero automático de préstamos para el FABLAB, es utiliza una serie de tecnológias asociadas entre si para dar una mejor experiencia al usuario final que es el estudiante.
  
-# Especificaciones técnicas ⚙️🛠️
+# Especificaciones técnicas. ⚙️🛠️
 
 
 ### Hadware. ⚙️​🔧​
@@ -45,7 +45,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
  |  GND |  PIN 6 (GND) |
  | SDA | PIN 3 (GPIO 2 (SDA))|
  | SCL | PIN 5 (GPIO 3 (SCL)) |
- | INTA | No es necesario conectar|
+ | INT A | No es necesario conectar|
  |INT B | No es necesario conectar |
 
 ### Raspberry 🍇​🍓 ---> Tira led 🔦
@@ -61,7 +61,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 
  |Conectores Tira LED|Conectores Rasberry pi 4 Model B|
  | ----------------- | ------------------------------- |
- |Conector UBS de (Camara web de alta definición con enfoque manual (1920x1080) 📷)| Puerto USB 3.0|
+ |Conector UBS de (Cámara web de alta definición con enfoque manual (1920x1080) 📷)| Puerto USB 3.0|
  |Cámara web cam con autoenfoque 📷​ |Puerto USB 3.0|
  |Puerto HDMI Pantalla touch de (1024x600)🖥️| Puerto HDMI - 0|
  |Puerto Touch Pantalla touch de (1024x600)🖥️ | Puerto USB 2.0|
