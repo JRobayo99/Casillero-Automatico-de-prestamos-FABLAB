@@ -1,9 +1,9 @@
-# Proyecto de casillero de fablab. 🗂️​​📋​​🧰​​
+# Proyecto de casillero de FABLAB. 🗂️​​📋​​🧰​​
 
 ## Introducción:
 
 El proposito de la automatización de procesos es beneficiar la porductividad y calidad de vida de los colaboradores, cuando se realicen prestamos de herramientas,
-en si los tableros de automáticos no solo tienen un uso de prestamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
+en si los tableros de automáticos no solo tienen un uso de préstamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
 casillero automático de préstamos para el FABLAB, es utiliza una serie de tecnológias asociadas entre si para dar una mejor experiencia al usuario final que es el estudiante.
  
 # Especificaciones técnicas ⚙️🛠️
@@ -12,7 +12,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 ### Hadware. ⚙️​🔧​
 
 - Raspebrry PI 4 model B 🍇​🍓​
-- Modulo MCP23017 (Modulo extensor de 16 pines)
+- Módulo MCP23017 (Módulo extensor de 16 pines)
 - Pantalla touch de (1024x600) 🖥️​
 - Cámara web de alta definición con enfoque manual (1920x1080) 📷​
 - Cámara web cam con autoenfoque 📷​ 
@@ -25,7 +25,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 #### Librerías de Python. 🗂️​🐍​
   - Zxingcpp (Lector de código de barras)
   - Opencv (procesador de imagenes)
-  - Adafruit, Adafruit blinka (Soporte de modulos de extensión MCP2027)
+  - Adafruit, Adafruit blinka (Soporte de módulos de extensión MCP2027)
   - Tkinter (interfaz gráfica)
   - Pandas (Gestión de base de datos)
   - IC2 (IC2 tools, IC2-dev, IC2-bcm2835)
@@ -57,7 +57,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
  |Signal| PIN 12 (GPIO 18 (PCM_CLK))|
 
 
-### Raspberry 🍇​🍓 ---> Camaras web y pantalla touch 🖥️📷​
+### Raspberry 🍇​🍓 ---> Cámaras web y pantalla touch 🖥️📷​
 
  |Conectores Tira LED|Conectores Rasberry pi 4 Model B|
  | ----------------- | ------------------------------- |
