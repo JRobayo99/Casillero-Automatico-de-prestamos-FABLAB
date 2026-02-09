@@ -1,5 +1,0 @@
-nombre,apellido1,apellido2,cedula,fecha_nac,rh,sexo,foto_path,herramientas,fecha_prestamo
-Juan,Pérez,Gómez,1234567890,1990-01-01,O+,M,/ruta/foto.jpg,"Martillo,Destornillador",2025-12-16 11:43:16
-Juan,Pérez,Gómez,1234567890,1990-01-01,O+,M,/ruta/foto.jpg,"Martillo,Destornillador",2026-01-13 16:13:16
-Juan,Pérez,Gómez,1234567890,1990-01-01,O+,M,/ruta/foto.jpg,"Martillo,Destornillador",2026-01-14 08:10:23
-Juan,Pérez,Gómez,1234567890,1990-01-01,O+,M,/ruta/foto.jpg,"Martillo,Destornillador",2026-01-14 08:17:40
