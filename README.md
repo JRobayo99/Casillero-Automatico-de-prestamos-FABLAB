@@ -62,7 +62,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
  |Conectores Tira LED|Conectores Rasberry pi 4 Model B|
  | ----------------- | ------------------------------- |
  |Conector UBS de (Camara web de alta definición con enfoque manual (1920x1080) 📷)| Puerto USB 3.0|
- |Camara web cam con autoenfoque 📷​ |Puerto USB 3.0|
+ |Cámara web cam con autoenfoque 📷​ |Puerto USB 3.0|
  |Puerto HDMI Pantalla touch de (1024x600)🖥️| Puerto HDMI - 0|
  |Puerto Touch Pantalla touch de (1024x600)🖥️ | Puerto USB 2.0|
 
