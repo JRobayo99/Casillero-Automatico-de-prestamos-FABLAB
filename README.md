@@ -43,6 +43,9 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 
 ### Raspberry 🍇​🍓 ---> MCP23017 
 
+<img width="636" height="414" alt="image" src="https://github.com/user-attachments/assets/9292bde8-d1f4-4e8d-9818-8eda22ccd902" />
+
+
  |Conectores MCP23017|Conectores Rasberry pi 4 Model B|
  | ----------------- | ------------------------------- |
  |       VCC(5V)   | PIN 2 (5V POWER)                  | 
