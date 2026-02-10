@@ -1,16 +1,22 @@
-import time
 import subprocess
-from mcp_control import leer_entrada
+from mcp_control import activar_salida
 
-print("Sistema iniciado")
+print("Sistema listo (1–32, 0 para salir)")
 
 while True:
+    try:
+        n = int(input("Número: "))
+    except ValueError:
+        continue
 
-    estado= leer_entrada()
+    if n == 0:
+        break
 
-    if not (estado & 0b00000001):
-        print("Boton presionado LED ROJO")
-        subprocess.run(["sudo","python3","led_control.py","255","0","0"])
-        time.sleep(0.5)
-
-    time.sleep(0.1)
+    if 1 <= n <= 32:
+        activar_salida(n)
+        subprocess.run(
+            ["sudo", "python3", "led_control.py", str(n)],
+            check=False
+        )
+    else:
+        print("Número fuera de rango")
