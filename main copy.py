@@ -16,7 +16,7 @@ while True:
         activar_salida(n)
         subprocess.run(
             ["sudo", "python3", "led_control.py", str(n)],
-            check=False          
+            check=False
         )
     else:
         print("Número fuera de rango")

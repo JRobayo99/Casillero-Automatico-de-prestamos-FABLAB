@@ -10,102 +10,88 @@ from datetime import datetime
 # ===============================
 # Función para limpiar y extraer datos de la cédula
 # ===============================
-class cedula_amarilla:
+# basada en la versión que se usa en el notebook y otros ejemplos.
+# Se mantiene la heurística de 10 dígitos y algunas reglas extra,
+# pero ahora es un método independiente para que EscanerPDF417 pueda
+# llamarlo directamente.
 
-    def __init__(self, parse_pdf417, EscanerPDF417):
-            self.parse_pdf417 = parse_pdf417
-            self.EscanerPDF417 = EscanerPDF417
+def parse_pdf417(text):
+    # Quitar caracteres no imprimibles
+    clean = re.sub(r'[\x00-\x1F\x7F-\x9F]', ' ', text)
 
-    def parse_pdf417(self, text):
-            # Quitar caracteres no imprimibles
-        clean = re.sub(r'[\x00-\x1F\x7F-\x9F]', ' ', text)
+    # El decodificador a veces inyecta "NUL" entre campos
+    clean = clean.replace('NUL', ' ')
 
-        # Quitar palabras "NUL" que vienen del decodificador
-        clean = clean.replace("NUL", " ")
+    data = {}
 
-        data = {}
+    # 1. buscar todas las cadenas de 10 dígitos y elegir la segunda
+    # algunos PDF417 traen signos o espacios entre números, eliminar aquí
+    digits_only = re.sub(r'[^0-9]', '', clean)
+    all_10_digits = re.findall(r'(?<!\d)\d{10}(?!\d)', clean)
+    if not all_10_digits and len(digits_only) >= 10:
+        # intentar usando la cadena compactada como respaldo
+        all_10_digits = [digits_only[i:i+10] for i in range(len(digits_only)-9)]
 
-        # ===============================
-        # 1. Intento principal: buscar cadenas numéricas de 10 dígitos
-        # ===============================
-        all_10_digits = re.findall(r'(?<!\d)\d{10}(?!\d)', clean)
+    if len(all_10_digits) >= 2:
+        data['cedula'] = all_10_digits[1]
+        cedula = data['cedula']
+    elif len(all_10_digits) == 1:
+        data['cedula'] = all_10_digits[0]
+        cedula = data['cedula']
+    else:
+        data['cedula'] = None
+        cedula = None
 
-        if len(all_10_digits) >= 2:
-            cedula = all_10_digits[1]
-            data["cedula"] = cedula
-        else:
-            data["cedula"] = None
-            cedula = None
+    # 2. sexo + fecha
+    m = re.search(r'([MF])(\d{8})', clean)
+    if m:
+        data['sexo'] = m.group(1)
+        data['fecha_nac'] = m.group(2)
 
-        # ===============================
-        # 2. Sexo + fecha
-        # ===============================
-        
+    # 3. RH
+    m = re.search(r'(A|B|O)[+-]', clean)
+    if m:
+        data['rh'] = m.group(0)
 
-            
+    # 4. apellidos/nombre
+    grupos = []
+    if cedula:
+        pos = clean.find(cedula)
+        tail = clean[pos + len(cedula):]
+        grupos = re.findall(r'\b[A-ZÑÁÉÍÓÚ]{2,}\b', tail)
+        grupos = [g for g in grupos if g not in ('N', 'NU', 'NUL')]
+        if len(grupos) >= 1:
+            data['apellido1'] = grupos[0]
+        if len(grupos) >= 2:
+            data['apellido2'] = grupos[1]
+        if len(grupos) >= 3:
+            data['nombre'] = grupos[2]
+    else:
+        grupos_any = re.findall(r'\b[A-ZÑÁÉÍÓÚ]{2,}\b', clean)
+        grupos_any = [g for g in grupos_any if g not in ('N', 'NU', 'NUL')]
+        if len(grupos_any) >= 1:
+            data['apellido1'] = grupos_any[0]
+        if len(grupos_any) >= 2:
+            data['apellido2'] = grupos_any[1]
+        if len(grupos_any) >= 3:
+            data['nombre'] = grupos_any[2]
+        # regla extra: si hay muchos dígitos totales, reconstruir cédula
+        if data.get('apellido1'):
+            total_digits = len(re.findall(r'\d', clean))
+            if total_digits > 11:
+                pos_ap = clean.find(data['apellido1'])
+                if pos_ap != -1:
+                    digits_collected = []
+                    i = pos_ap - 1
+                    while i >= 0 and len(digits_collected) < 10:
+                        if clean[i].isdigit():
+                            digits_collected.insert(0, clean[i])
+                        i -= 1
+                    if len(digits_collected) == 10:
+                        cedula = ''.join(digits_collected)
+                        data['cedula'] = cedula
 
-        # ===============================
-        # 3. RH
-        # ===============================
-        m = re.search(r'(A|B|O)[+-]', clean)
-        if m:
-            data["rh"] = m.group(0)
-
-        # ===============================
-        # 4. Apellidos y nombre SIN “NUL”
-        #    - Si no se encontró la cédula en el paso anterior, se
-        #      intenta localizar el primer apellido en todo el texto
-        #      y, según la regla solicitada, extraer 10 dígitos empezando
-        #      desde la primera letra visible del apellido cuando el
-        #      total de cifras en el texto supera 11.
-        # ===============================
-        # Si hay cédula, buscar apellidos en la cola después de la cédula
-        grupos = []
-        if cedula:
-            pos = clean.find(cedula)
-            tail = clean[pos + len(cedula):]
-            grupos = re.findall(r'\b[A-ZÑÁÉÍÓÚ]{2,}\b', tail)
-            grupos = [g for g in grupos if g not in ["N", "NU", "NUL"]]
-
-            if len(grupos) >= 1:
-                data["apellido1"] = grupos[0]
-            if len(grupos) >= 2:
-                data["apellido2"] = grupos[1]
-            if len(grupos) >= 3:
-                data["nombre"] = grupos[2]
-        else:
-            # Buscar posibles apellidos en todo el texto
-            grupos_any = re.findall(r'\b[A-ZÑÁÉÍÓÚ]{2,}\b', clean)
-            grupos_any = [g for g in grupos_any if g not in ["N", "NU", "NUL"]]
-            if len(grupos_any) >= 1:
-                data["apellido1"] = grupos_any[0]
-            if len(grupos_any) >= 2:
-                data["apellido2"] = grupos_any[1]
-            if len(grupos_any) >= 3:
-                data["nombre"] = grupos_any[2]
-
-            # Regla solicitada: si el total de cifras en el texto es > 11,
-            # extraer 10 dígitos empezando desde la posición de la primera
-            # letra del `apellido1`, acumulando dígitos hacia adelante.
-            if data.get("apellido1"):
-                total_digits = len(re.findall(r'\d', clean))
-                if total_digits > 11:
-                    pos_ap = clean.find(data["apellido1"])
-                    if pos_ap != -1:
-                        digits_collected = []
-                        # Empezar desde el carácter anterior a la primera letra
-                        i = pos_ap - 1
-                        # Recorrer hacia atrás y acumular dígitos hasta 10
-                        while i >= 0 and len(digits_collected) < 10:
-                            if clean[i].isdigit():
-                                digits_collected.insert(0, clean[i])
-                            i -= 1
-
-                        if len(digits_collected) == 10:
-                            cedula = ''.join(digits_collected)
-                            data["cedula"] = cedula
-
-        return clean, data
+    return clean, data
 
 
 class EscanerPDF417:
@@ -188,6 +174,10 @@ class EscanerPDF417:
                 boton_cerrar = ttk.Button(marco_info, text="Volver / Cerrar Escáner", command=self.on_closing)
                 boton_cerrar.pack(pady=(8, 0))
 
+                # botón adicional para escaneo manual
+                boton_manual = ttk.Button(marco_info, text="Escanear ahora", command=lambda: self._escaneo_automatico(getattr(self, 'ultima_frame', None)))
+                boton_manual.pack(pady=(4, 0))
+
                 # Iniciar captura de video
                 self.iniciar_captura()
 
@@ -213,9 +203,6 @@ class EscanerPDF417:
         def _actualizar_video(self):
                 
                 """Actualiza el video en la interfaz y escanea automáticamente"""
-                # Recuadro
-                x1, y1 = 500, 150
-                x2, y2 = 1700, 800
                 contador_frames = 0
                 intervalo_escaneo = 5  # Escanear cada 5 frames
 
@@ -228,10 +215,21 @@ class EscanerPDF417:
                         if not ret:
                             break
 
-                            # Dibujar recuadro
+                        # calcular región dinámicamente según resolución actual
+                        h, w = frame.shape[:2]
+                        # cuatro márgenes como proporción de ancho/alto
+                        x1 = int(w * 0.25)
+                        y1 = int(h * 0.15)
+                        x2 = int(w * 0.85)
+                        y2 = int(h * 0.75)
+
+                        # Dibujar recuadro
                         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
 
-                            # Redimensionar para mostrar en tkinter
+                        # guardar copia para posible escaneo manual
+                        self.ultima_frame = frame.copy()
+
+                        # Redimensionar para mostrar en tkinter
                         frame_resizado = cv2.resize(frame, (640, 360))
                             
                             # Convertir BGR a RGB
@@ -251,44 +249,97 @@ class EscanerPDF417:
                         contador_frames += 1
                         if contador_frames >= intervalo_escaneo:
                             contador_frames = 0
-                            self._escaneo_automatico(frame, x1, y1, x2, y2)
+                            self._escaneo_automatico(frame)
                             
                     except Exception as e:
                         print(f"Error en actualización de video: {e}")
                         break
 
-        def _escaneo_automatico(self, frame, x1, y1, x2, y2):
+        def _escaneo_automatico(self, frame):
             """Realiza escaneo automático sin bloquear la interfaz"""
             try:
-                    # Recortar región
+                # calcular la misma región que en el bucle de video
+                h, w = frame.shape[:2]
+                x1 = int(w * 0.25)
+                y1 = int(h * 0.15)
+                x2 = int(w * 0.85)
+                y2 = int(h * 0.75)
+
+                # Recortar región
                 cropped = frame[y1:y2, x1:x2]
-                cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+                # ampliar para ayudar al decodificador
+                cropped = cv2.resize(cropped, None, fx=2, fy=2, interpolation=cv2.INTER_LINEAR)
+                # mostrar recorte en ventana temporal (útil para comprobar alineación)
+                cv2.imshow("Recorte escaneo", cropped)
+                cv2.waitKey(1)
+                # Preprocesar: convertir a gris y ecualizar contraste
+                gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
+                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+                gray = clahe.apply(gray)
+                prep = cv2.cvtColor(gray, cv2.COLOR_GRAY2RGB)
 
-                    # Decodificar
-                results = zxingcpp.read_barcodes(cropped_rgb)
+                # Función auxiliar para intentar varias orientaciones
+                def try_orientations(img):
+                    for angle, flag in [(0, None), (90, cv2.ROTATE_90_CLOCKWISE),
+                                        (180, cv2.ROTATE_180),
+                                        (270, cv2.ROTATE_90_COUNTERCLOCKWISE)]:
+                        if flag is not None:
+                            test = cv2.rotate(img, flag)
+                        else:
+                            test = img
+                        res = zxingcpp.read_barcodes(test)
+                        if res:
+                            return res, angle
+                    return [], 0
 
-                if len(results) > 0:
-                    self.root.after(0, self.agregar_info, "=" * 45, "separador")
-                    self.root.after(0, self.agregar_info, f"DETECCIÓN: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "titulo")
-                    self.root.after(0, self.agregar_info, "=" * 45, "separador")
-                    self.root.after(0, self.agregar_info, f"✓ {len(results)} código(s) detectado(s)", "exito")
+                results, used_angle = try_orientations(prep)
+                if used_angle != 0:
+                    self.root.after(0, self.agregar_info, f"Código detectado rotado {used_angle}°", "dato")
 
-                    for i, r in enumerate(results):
-                        self.root.after(0, self.agregar_info, f"\n--- Código {i+1} ---", "titulo")
-                        self.root.after(0, self.agregar_info, f"Formato: {r.format}", "dato")
+                if not results:
+                    # intentar sin ecualización ni rotación como último recurso
+                    fallback = zxingcpp.read_barcodes(cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB))
+                    if fallback:
+                        results = fallback
+                        self.root.after(0, self.agregar_info, "Código encontrado sin preprocesar", "dato")
+                    else:
+                        self.root.after(0, self.agregar_info, "Sin código en el recuadro", "error")
+                        return
 
-                            # Limpieza y extracción
-                        clean, extracted = self.parse_pdf417(r.text)
+                self.root.after(0, self.agregar_info, "=" * 45, "separador")
+                self.root.after(0, self.agregar_info, f"DETECCIÓN: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", "titulo")
+                self.root.after(0, self.agregar_info, "=" * 45, "separador")
+                self.root.after(0, self.agregar_info, f"✓ {len(results)} código(s) detectado(s)", "exito")
 
-                            # Mostrar datos extraídos
-                        self.root.after(0, self.agregar_info, "\nDATA EXTRAÍDA:", "titulo")
+                for i, r in enumerate(results):
+                    self.root.after(0, self.agregar_info, f"\n--- Código {i+1} ---", "titulo")
+                    self.root.after(0, self.agregar_info, f"Formato: {r.format}", "dato")
 
-                        for key, val in extracted.items():
-                            if val is not None:
-                                self.root.after(0, self.agregar_info, f"  {key}: {val}", "dato")
+                    # mostrar texto bruto para depuración
+                    if not r.text or not r.text.strip():
+                        self.root.after(0, self.agregar_info, "Código encontrado pero texto vacío", "error")
+                        continue
+
+                    self.root.after(0, self.agregar_info, f"Texto RAW: {r.text}", "dato")
+
+                    # Limpieza y extracción usando función global
+                    clean, extracted = parse_pdf417(r.text)
+                    self.root.after(0, self.agregar_info, "Texto limpio:", "dato")
+                    self.root.after(0, self.agregar_info, clean, "dato")
+                    self.root.after(0, self.agregar_info, f"Diccionario extraído: {extracted}", "dato")
+
+                    # Mostrar datos extraídos
+                    self.root.after(0, self.agregar_info, "\nDATA EXTRAÍDA:", "titulo")
+                    cedula_val = extracted.get('cedula')
+                    if cedula_val is None:
+                        self.root.after(0, self.agregar_info, "  <CÉDULA NO DETECTADA>", "error")
+                    for key, val in extracted.items():
+                        if val is not None:
+                            self.root.after(0, self.agregar_info, f"  {key}: {val}", "dato")
 
             except Exception as e:
-                pass  # Ignorar errores de escaneo para no saturar el log
+                # registrar error en log para no ocultarlo completamente
+                self.root.after(0, self.agregar_info, f"Error escaneando: {e}", "error")
 
         def agregar_info(self, texto, tag="dato"):
                 

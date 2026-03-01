@@ -1,34 +1,24 @@
 import cv2
 import pytesseract
-import numpy as np
-
-# SOLO EN WINDOWS (ajusta la ruta si es necesario)
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+from pytesseract import Output
 
 cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 while True:
-    ret, frame = cap.read()
-    if not ret:
-        break
 
-    # Preprocesamiento
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+    ret, frame= cap.read()
+    d = pytesseract.image_to_data(frame, lang='spa', output_type=Output.DICT)
+    cant_cajas= len(d['text'])
+    for i in range(cant_cajas):
+        if int(d['conf'][i]) > 60:
+            (text, x, y, w, h) = (d['text'][i], d['left'][i], d['top'][i], d['width'][i], d['height'][i])
 
-    # OCR
-    texto = pytesseract.image_to_string(thresh, lang='spa')
+            if text and text.strip() != "":
+                cuadro = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cuadro = cv2.putText(frame, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-    # Mostrar texto en consola
-    print("Texto detectado:")
-    print(texto)
-
-    # Mostrar imagen
-    cv2.imshow("Camara", frame)
-    cv2.imshow("Procesada", thresh)
-
+    cv2.imshow('frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

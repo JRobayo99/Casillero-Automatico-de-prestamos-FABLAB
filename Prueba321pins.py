@@ -5,8 +5,8 @@ from adafruit_mcp230xx.mcp23017 import MCP23017
 
 i2c= busio.I2C(board.SCL, board.SDA)
 
-mcpA = MCP23017(i2c, address=0x23)
-mcpB = MCP23017(i2c, address=0x27)
+mcpA = MCP23017(i2c, address=0x27)
+mcpB = MCP23017(i2c, address=0x23)
 
 pinsA = {}
 pinsB = {}
@@ -38,7 +38,7 @@ root = tk.Tk()
 root.title("Control de MCP23017 (0x23)(0x27)")
 root.geometry("600x700")
 
-tk.Label(root, text= "MCP23017 0X23 (A)", font=("Arial", 14)).pack()
+tk.Label(root, text= "MCP23017 0X27 (A)", font=("Arial", 14)).pack()
 
 frameA = tk.Frame(root)
 frameA.pack(pady=10)
@@ -49,7 +49,7 @@ for i in range(16):
     b.grid(row=i//8, column=i%8, padx=5, pady=5)
     b.config(command=lambda p=i, btn=b: toggle_A(p, btn))
 
-tk.Label(root, text= "MCP23017 0X27 (B)", font=("Arial", 14)).pack()
+tk.Label(root, text= "MCP23017 0X23 (B)", font=("Arial", 14)).pack()
 
 frameB = tk.Frame(root)
 frameB.pack(pady=10)
