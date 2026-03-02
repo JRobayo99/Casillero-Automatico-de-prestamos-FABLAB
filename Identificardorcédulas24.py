@@ -55,7 +55,14 @@ def extract_new_id_text(image):
         return None
 
 def main():
+
     cap = cv2.VideoCapture(0) # Abre la cámara web
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    print("Resolución real:", cap.get(3), "x", cap.get(4))
+
+    
+
     
     while True:
         ret, frame = cap.read()
@@ -82,14 +89,14 @@ def main():
         if pdf417_data:
             # Mostrar resultado en el frame
             cv2.putText(frame, "CEDULA ANTIGUA DETECTADA", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-            print(f"Datos PDF417: {pdf417_data}")
+            print(f"Datos PDF417: CEDULA ANTIGUA DETECTADA")
             # Aquí parseas los datos del PDF417
         else:
             # 2. Si no hay PDF417, intentar como cédula nueva (OCR)
             new_id_text = extract_new_id_text(roi_image)
             if new_id_text:
                 cv2.putText(frame, "CEDULA NUEVA DETECTADA", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0), 2)
-                print(f"Texto OCR: {new_id_text}")
+                print(f"Texto OCR: CEDULA NUEVA DETECTADA")
                 # Aquí parseas las 3 lineas del texto
             else:
                 cv2.putText(frame, "No detectada", (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
@@ -99,6 +106,11 @@ def main():
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
+    cv2.namedWindow("Captura", cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty("Captura", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+
 
     cap.release()
     cv2.destroyAllWindows()

@@ -25,7 +25,9 @@ class cedula_amarilla:
         # ===============================
         # DETECCIÓN Y ELIMINACIÓN DE PREFIJO DE 8 DÍGITOS
         # ===============================
-        # Buscar patrón: 8 dígitos + 10 dígitos + texto en mayúsculas
+        # Buscar patrón: 8 dígitos + 10q
+        # 
+        #  dígitos + texto en mayúsculas
         patron_prefijo = r'(\d{8})(\d{10})([A-ZÑÁÉÍÓÚ]+)'
         match_prefijo = re.search(patron_prefijo, clean)
         
@@ -55,30 +57,10 @@ class cedula_amarilla:
                 data["Cédula"] = None
                 cedula = None
 
-        # ===============================
-        # 2. RH
-        # ===============================
-        m_rh = re.search(r'(A|B|O)[+-]', clean)
-        if m_rh:
-            data["rh"] = m_rh.group(0)
+        
+        
 
-        # ===============================
-        # 3. Fecha de nacimiento (formato DDMMYYYY)
-        # ===============================
-        m_fecha = re.search(r'\b(0[1-9]|[12][0-9]|3[01])(0[1-9]|1[0-2])(19|20)\d{2}\b', clean)
-        if m_fecha:
-            dia = m_fecha.group(1)
-            mes = m_fecha.group(2)
-            anio = m_fecha.group(3) + m_fecha.group(4) if len(m_fecha.groups()) > 3 else m_fecha.group(3)
-            data["fecha_nacimiento"] = f"{dia}/{mes}/{anio}"
-
-        # ===============================
-        # 4. Sexo
-        # ===============================
-        m_sexo = re.search(r'\b(MASCULINO|FEMENINO|M|F)\b', clean, re.IGNORECASE)
-        if m_sexo:
-            data["sexo"] = m_sexo.group(0).capitalize()
-
+       
         # ===============================
         # 5. Apellidos y nombre
         # ===============================
@@ -99,16 +81,16 @@ class cedula_amarilla:
 
         # Asignar apellidos y nombre
         if len(grupos) >= 1:
-            data["apellido1"] = grupos[0]
+            data["Primer apellido"] = grupos[0]
         if len(grupos) >= 2:
-            data["apellido2"] = grupos[1]
+            data["Segundo apellido"] = grupos[1]
         if len(grupos) >= 3:
-            data["nombre"] = grupos[2]
+            data["Nombre"] = grupos[2]
             
         # Si tenemos exactamente 2 grupos, asumimos que el segundo es el nombre
         elif len(grupos) == 2:
-            data["nombre"] = grupos[1]
-            data["apellido2"] = ""
+            data["Nombre"] = grupos[1]
+            data["Segundo apellido"] = ""
 
         return clean, data
 
@@ -125,6 +107,10 @@ class cedula_amarilla:
     # Recuadro
     x1, y1 = 500, 150
     x2, y2 = 1700, 800
+
+    
+
+    
 
     # Ajustar la ventana de visualización al tamaño de la pantalla
     root = tk.Tk()
@@ -146,7 +132,7 @@ class cedula_amarilla:
     display_h = max(100, int(frame_h * scale))
 
     cv2.namedWindow("Captura", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Captura", display_w, display_h)
+    cv2.setWindowProperty("Captura", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     # Escaneo automático: intervalo y control de cooldown tras detección
     last_scan_time = 0.0

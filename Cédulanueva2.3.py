@@ -19,7 +19,7 @@ class DetectorCedula:
         self.cap = None
         
         # Coordenadas del recuadro de interés
-        self.x1, self.y1 = 500, 150
+        self.x1, self.y1 = 500, 550
         self.x2, self.y2 = 1700, 800
         
         # Dimensiones de pantalla
@@ -63,14 +63,13 @@ class DetectorCedula:
     def _configurar_ventana(self):
         """Configura la ventana de visualización al tamaño de la pantalla"""
         cv2.namedWindow('Detector Cédula', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('Detector Cédula', self.screen_w, self.screen_h)
+        cv2.setWindowProperty('Detector Cédula', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         print(f"Ventana redimensionada a: {self.screen_w}x{self.screen_h}")
     
     def _dibujar_recuadro(self, frame):
         """Dibuja el recuadro de interés en el frame"""
         cv2.rectangle(frame, (self.x1, self.y1), (self.x2, self.y2), (255, 0, 0), 3)
-        cv2.putText(frame, "AREA DE LECTURA", (self.x1, self.y1 - 10), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+        
         return frame
     
     def _procesar_frame(self, frame):
@@ -98,6 +97,8 @@ class DetectorCedula:
                 x = d['left'][i] + self.x1  # Ajustar coordenadas al frame original
                 y = d['top'][i] + self.y1
                 w = d['width'][i]
+
+                
                 h = d['height'][i]
                 
                 if text and text.strip() != "":
