@@ -16,7 +16,11 @@ class DetectorCedula:
         self.idioma = idioma
         self.confianza_minima = confianza_minima
         self.cap = None
+<<<<<<< HEAD
         self.screen_width = 1920  # Valores por defecto
+=======
+        self.screen_width = 1920
+>>>>>>> pc2
         self.screen_height = 1080
         
         # Obtener dimensiones de la pantalla
@@ -41,12 +45,22 @@ class DetectorCedula:
         Args:
             pantalla_completa: Si True, pone la ventana en modo pantalla completa
         """
+<<<<<<< HEAD
         cv2.namedWindow('Detector Cédula', cv2.WINDOW_NORMAL)
         
         if pantalla_completa:
             cv2.setWindowProperty('Detector Cédula', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         else:
             cv2.resizeWindow('Detector Cédula', self.screen_width, self.screen_height)
+=======
+        if pantalla_completa:
+            # Modo pantalla completa - la imagen mantiene su tamaño original
+            cv2.namedWindow('Detector Cédula', cv2.WINDOW_NORMAL)
+            cv2.setWindowProperty('Detector Cédula', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        else:
+            # Ventana normal - se ajusta automáticamente al tamaño del frame
+            cv2.namedWindow('Detector Cédula', cv2.WINDOW_AUTOSIZE)
+>>>>>>> pc2
     
     def _procesar_frame(self, frame):
         """
@@ -102,6 +116,15 @@ class DetectorCedula:
             if numeros_encontrados:
                 datos_cedula['numeros'] = numeros_encontrados
             
+<<<<<<< HEAD
+=======
+            # Buscar patrones específicos de cédula (ej: 8 dígitos)
+            for palabra in palabras:
+                if palabra.isdigit() and len(palabra) >= 7 and len(palabra) <= 10:
+                    datos_cedula['posible_cedula'] = palabra
+                    break
+            
+>>>>>>> pc2
             return datos_cedula
         
         return None
@@ -118,10 +141,18 @@ class DetectorCedula:
         self.cap = cv2.VideoCapture(self.fuente)
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         
+<<<<<<< HEAD
         # Configurar ventana
         self._configurar_ventana(pantalla_completa)
         
         print("Detector de cédulas iniciado. Presiona 'q' para salir.")
+=======
+        # Configurar ventana - AHORA USA WINDOW_AUTOSIZE PARA MANTENER CALIDAD
+        self._configurar_ventana(pantalla_completa)
+        
+        print("Detector de cédulas iniciado. Presiona 'q' para salir.")
+        print(f"Resolución original de la cámara: {self._obtener_resolucion_camara()}")
+>>>>>>> pc2
         
         while True:
             ret, frame = self.cap.read()
@@ -145,9 +176,17 @@ class DetectorCedula:
                     print(f"Texto: {datos_cedula.get('texto_completo', 'N/A')}")
                     if 'numeros' in datos_cedula:
                         print(f"Números encontrados: {', '.join(datos_cedula['numeros'])}")
+<<<<<<< HEAD
                     print("--------------------------------\n")
             
             # Mostrar frame
+=======
+                    if 'posible_cedula' in datos_cedula:
+                        print(f"⚠️ POSIBLE NÚMERO DE CÉDULA: {datos_cedula['posible_cedula']} ⚠️")
+                    print("--------------------------------\n")
+            
+            # Mostrar frame - SIN REDIMENSIONAR, mantiene calidad original
+>>>>>>> pc2
             cv2.imshow('Detector Cédula', frame_procesado)
             
             # Salir con 'q'
@@ -157,6 +196,17 @@ class DetectorCedula:
         # Limpiar recursos
         self.detener()
     
+<<<<<<< HEAD
+=======
+    def _obtener_resolucion_camara(self):
+        """Obtiene la resolución actual de la cámara"""
+        if self.cap:
+            ancho = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            alto = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            return f"{ancho}x{alto}"
+        return "Desconocida"
+    
+>>>>>>> pc2
     def detener(self):
         """Detiene la captura y cierra ventanas"""
         if self.cap:
@@ -164,6 +214,22 @@ class DetectorCedula:
         cv2.destroyAllWindows()
         print("Detector detenido.")
     
+<<<<<<< HEAD
+=======
+    def configurar_resolucion(self, ancho, alto):
+        """
+        Configura la resolución de la cámara
+        
+        Args:
+            ancho: Ancho deseado en píxeles
+            alto: Alto deseado en píxeles
+        """
+        if self.cap:
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, ancho)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, alto)
+            print(f"Resolución configurada a: {ancho}x{alto}")
+    
+>>>>>>> pc2
     def capturar_y_guardar(self, nombre_archivo="captura.jpg"):
         """
         Captura un frame y guarda la imagen
@@ -189,6 +255,7 @@ if __name__ == "__main__":
         confianza_minima=60 # Confianza mínima del 60%
     )
     
+<<<<<<< HEAD
     # Iniciar detección
     # Opciones:
     # - pantalla_completa=False: ventana redimensionada al tamaño de pantalla
@@ -200,3 +267,17 @@ if __name__ == "__main__":
     
     # También puedes usar:
     # detector.capturar_y_guardar("mi_cedula.jpg")  # Para capturar una imagen
+=======
+    # Opcional: Configurar resolución específica (si la cámara lo soporta)
+    # detector.configurar_resolucion(1280, 720)  # HD
+    # detector.configurar_resolucion(1920, 1080) # Full HD
+    
+    # Iniciar detección - AHORA MANTIENE LA CALIDAD ORIGINAL
+    detector.iniciar_deteccion(
+        pantalla_completa=False,  # False = ventana con tamaño original de la cámara
+        imprimir_tiempo_real=True
+    )
+    
+    # Para pantalla completa (también mantiene calidad):
+    # detector.iniciar_deteccion(pantalla_completa=True)
+>>>>>>> pc2
