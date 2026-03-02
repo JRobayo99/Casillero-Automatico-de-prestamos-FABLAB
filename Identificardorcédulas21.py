@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# identificador_tipo_cedula.py
 
 import cv2
 import sys
