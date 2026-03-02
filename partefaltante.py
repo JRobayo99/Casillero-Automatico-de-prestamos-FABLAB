@@ -1,4 +1,134 @@
- def _extraer_datos_cedula_nueva(self, texto_completo):
+import cv2
+import pytesseract
+from pytesseract import Output
+import tkinter as tk
+import re
+
+class DetectorCedula:
+    def __init__(self, fuente=0, idioma='spa', confianza_minima=60):
+        """
+        Inicializa el detector de cédulas
+        
+        Args:
+            fuente: Fuente de video (0 para cámara web, o ruta de video)
+            idioma: Idioma para OCR ('spa' para español)
+            confianza_minima: Umbral de confianza para mostrar texto (0-100)
+        """
+        self.fuente = fuente
+        self.idioma = idioma
+        self.confianza_minima = confianza_minima
+        self.cap = None
+        self.datos_detectados = False  # Bandera para controlar si ya se detectaron los 90 caracteres
+        
+        # Coordenadas del recuadro de interés
+        self.x1, self.y1 = 500, 550
+        self.x2, self.y2 = 1700, 800
+        
+        # Dimensiones de pantalla
+        self.screen_w = 1920
+        self.screen_h = 1080
+        self.frame_w = 1920
+        self.frame_h = 1080
+        
+        # Obtener dimensiones reales de la pantalla
+        self._obtener_dimensiones_pantalla()
+    
+    def _obtener_dimensiones_pantalla(self):
+        """Obtiene las dimensiones reales de la pantalla usando tkinter"""
+        try:
+            root = tk.Tk()
+            root.withdraw()  # Oculta la ventana principal de tkinter
+            self.screen_w = root.winfo_screenwidth()
+            self.screen_h = root.winfo_screenheight()
+            root.destroy()
+            print(f"Dimensiones de pantalla detectadas: {self.screen_w}x{self.screen_h}")
+        except Exception as e:
+            print(f"Error al obtener dimensiones de pantalla: {e}")
+            print("Usando dimensiones por defecto: 1920x1080")
+    
+    def _configurar_camara(self):
+        """Configura la cámara con la resolución deseada"""
+        self.cap = cv2.VideoCapture(self.fuente)
+        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        
+        # Configurar resolución a 1920x1080
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        
+        # Obtener resolución real (puede variar según la cámara)
+        self.frame_w = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.frame_h = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        print(f"Resolución real de la cámara: {self.frame_w} x {self.frame_h}")
+        print(f"Recuadro de interés: ({self.x1}, {self.y1}) a ({self.x2}, {self.y2})")
+    
+    def _configurar_ventana(self):
+        """Configura la ventana de visualización al tamaño de la pantalla"""
+        cv2.namedWindow('Detector Cédula', cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty('Detector Cédula', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        print(f"Ventana redimensionada a: {self.screen_w}x{self.screen_h}")
+    
+    def _dibujar_recuadro(self, frame):
+        """Dibuja el recuadro de interés en el frame"""
+        cv2.rectangle(frame, (self.x1, self.y1), (self.x2, self.y2), (255, 0, 0), 3)
+        
+        # Agregar texto informativo
+        estado = "DETECTADO ✓" if self.datos_detectados else "ESPERANDO 90 CARACTERES..."
+        color = (0, 255, 0) if self.datos_detectados else (0, 0, 255)
+        cv2.putText(frame, estado, (self.x1, self.y1 - 20), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
+        return frame
+    
+    def _procesar_frame(self, frame):
+        """
+        Procesa un frame individual: aplica OCR solo en el recuadro y dibuja resultados
+        
+        Args:
+            frame: Imagen a procesar
+            
+        Returns:
+            tuple: (frame_procesado, texto_detectado)
+        """
+        # Extraer la región de interés (ROI) del recuadro
+        roi = frame[self.y1:self.y2, self.x1:self.x2]
+        
+        # Aplicar OCR solo en la región de interés
+        d = pytesseract.image_to_data(roi, lang=self.idioma, output_type=Output.DICT)
+        cant_cajas = len(d['text'])
+        
+        texto_detectado = []
+        
+        for i in range(cant_cajas):
+            if int(d['conf'][i]) > self.confianza_minima:
+                text = d['text'][i]
+                x = d['left'][i] + self.x1  # Ajustar coordenadas al frame original
+                y = d['top'][i] + self.y1
+                w = d['width'][i]
+                h = d['height'][i]
+                
+                if text and text.strip() != "":
+                    # Dibujar rectángulo y texto en el frame original
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    cv2.putText(frame, text, (x, y - 10), 
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                    
+                    texto_detectado.append(text.strip())
+        
+        # Dibujar el recuadro de interés
+        frame = self._dibujar_recuadro(frame)
+        
+        return frame, texto_detectado
+    
+    def _limpiar_texto_ocr(self, texto):
+        """Limpia y unifica el texto del OCR"""
+        # Eliminar espacios y unir todo
+        texto_limpio = ''.join(texto).replace(' ', '')
+        # Mantener solo caracteres válidos (letras mayúsculas, números y <)
+        texto_limpio = re.sub(r'[^A-Z0-9<]', '', texto_limpio.upper())
+        return texto_limpio
+    
+    def _extraer_datos_cedula_nueva(self, texto_completo):
         """
         Extrae información de la cédula nueva colombiana basada en posiciones
         El formato esperado es de 90 caracteres con <, números y letras
