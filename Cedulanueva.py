@@ -6,18 +6,28 @@ cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
 while True:
-
-    ret, frame= cap.read()
+    ret, frame = cap.read()
     d = pytesseract.image_to_data(frame, lang='spa', output_type=Output.DICT)
-    cant_cajas= len(d['text'])
+    cant_cajas = len(d['text'])
+    
+    texto_detectado = []  # Lista para almacenar el texto detectado
+    
     for i in range(cant_cajas):
         if int(d['conf'][i]) > 60:
             (text, x, y, w, h) = (d['text'][i], d['left'][i], d['top'][i], d['width'][i], d['height'][i])
-
+            
             if text and text.strip() != "":
+                # Dibujar rectángulo y texto en el frame
                 cuadro = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 cuadro = cv2.putText(frame, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-
+                
+                # Agregar texto detectado a la lista
+                texto_detectado.append(text.strip())
+    
+    # Imprimir el texto detectado en la terminal
+    if texto_detectado:
+        print("Texto detectado:", " ".join(texto_detectado))
+    
     cv2.imshow('frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
