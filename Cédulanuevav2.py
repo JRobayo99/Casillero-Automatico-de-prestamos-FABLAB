@@ -48,6 +48,11 @@ class DetectorCedula:
 <<<<<<< HEAD
         cv2.namedWindow('Detector Cédula', cv2.WINDOW_NORMAL)
         
+<<<<<<< HEAD
+       
+        cv2.setWindowProperty('Detector Cédula', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        
+=======
         if pantalla_completa:
             cv2.setWindowProperty('Detector Cédula', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         else:
@@ -61,6 +66,7 @@ class DetectorCedula:
             # Ventana normal - se ajusta automáticamente al tamaño del frame
             cv2.namedWindow('Detector Cédula', cv2.WINDOW_AUTOSIZE)
 >>>>>>> pc2
+>>>>>>> ed9212f95d9d635eb432c05e38388d6fd1384081
     
     def _procesar_frame(self, frame):
         """
