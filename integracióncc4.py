@@ -19,8 +19,8 @@ class IdentificadorCedulas:
         self.detection_complete = False
         
         # Configuración de ROIs para identificación
-        self.roi_ident_x1, self.roi_ident_y1 = 500, 200
-        self.roi_ident_x2, self.roi_ident_y2 = 1500, 900
+        self.roi_ident_x1, self.roi_ident_y1 = 350, 50
+        self.roi_ident_x2, self.roi_ident_y2 = 1650, 900
         
         # Control de tiempo para escaneo automático
         self.last_scan_time = 0.0
@@ -131,50 +131,71 @@ class IdentificadorCedulas:
         # Crear ventana de carga con tkinter
         root = tk.Tk()
         root.title("Cargando Escáner")
-        root.geometry("400x200")
-        
-        # Centrar ventana
-        root.update_idletasks()
-        x = (root.winfo_screenwidth() // 2) - (400 // 2)
-        y = (root.winfo_screenheight() // 2) - (200 // 2)
-        root.geometry(f'400x200+{x}+{y}')
-        
-        # Estilo
-        style = ttk.Style()
-        style.theme_use('clam')
-        
-        # Frame principal
-        main_frame = ttk.Frame(root, padding="20")
+        root.attributes('-fullscreen', True)
+
+        root.configure(bg='#2E2E2E')
+
+        main_frame= tk.Frame(root, bg='#2E2E2E')
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Título
-        titulo = ttk.Label(main_frame, 
-                          text=f"Preparando escáner para cédula {tipo_cedula.upper()}", 
-                          font=('Arial', 14, 'bold'))
-        titulo.pack(pady=20)
-        
-        # Barra de progreso
-        progress = ttk.Progressbar(main_frame, mode='indeterminate', length=300)
-        progress.pack(pady=20)
-        progress.start(10)
-        
-        # Mensaje
-        mensaje = ttk.Label(main_frame, 
-                           text="Inicializando componentes...", 
-                           font=('Arial', 10))
-        mensaje.pack(pady=10)
-        
-        # Actualizar ventana
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_rowconfigure(1, weight=1)
+        main_frame.grid_rowconfigure(2, weight=1)
+        main_frame.grid_rowconfigure(3, weight=1)
+        main_frame.grid_rowconfigure(4, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)
+
+        titulo = tk.Label(main_frame,
+                          text=f"CÉDULA {tipo_cedula.upper()} DETECTADA",
+                          font=('Arial', 14, 'bold'),
+                          bg='#2E2E2E',
+                          fg='white')
+        titulo.grid(row=1, column=0,pady=20)
+
+        subtitulo = tk.Label(main_frame,
+                             text="Cargando escáner...",
+                             font=('Arial', 48, 'bold'),
+                             bg='#2E2E2E',
+                             fg='#CCCCCC')
+        subtitulo.grid(row=1, column=0,pady=20)
+
+        cuenta_regresiva = tk.Label(main_frame,
+                                    text ='La cámara se activará en 5 segundos',
+                                    font=('Arial', 36, 'bold'),
+                                    bg='#2E2E2E',
+                                    fg='#FFD700')
+        cuenta_regresiva.grid(row=3, column=0,pady=30)
+
+        tiempo_label = tk.Label(main_frame,
+                                text="5",
+                                font=('Arial', 120, 'bold'),
+                                bg='#2E2E2E',
+                                fg='#FFD700')
+        tiempo_label.grid(row=4, column=0,pady=50)
+
+        instruccion = tk.Label(main_frame,
+                                text="Por favor, espere mientras se carga el sistema",
+                                font=('Arial', 28),
+                                bg='#2E2E2E',
+                                fg='#AAAAAA')
+        instruccion.grid(row=5, column=0,pady=20)
+
         root.update()
-        
-        # Simular carga
-        for i in range(3):
-            time.sleep(0.5)
-            mensaje.config(text=f"Inicializando componentes{'.' * (i+1)}")
+
+        for i in range(5, 0, -1):
+            tiempo_label.config(text=str(i))
+            cuenta_regresiva.config(text=f"La cámara se activará en {i} segundos")
             root.update()
-        
+            time.sleep(1)
+
+        tiempo_label.config(text='¡YA!', fg='#FF4500')
+        cuenta_regresiva.config(text="Iniciando escáner...", fg='#FF4500')
+        root.update()
+        time.sleep(0.5)
+
         root.destroy()
-        
+        print("✅ Carga completa. Iniciando escáner...")
+
     def iniciar_identificacion(self):
         """Inicia el proceso de identificación"""
         
@@ -256,6 +277,7 @@ class IdentificadorCedulas:
                 escaner.iniciar_escaneo()
 
 
+
 class EscanerCedulaAntigua:
     def __init__(self):
         self.cap = None
@@ -281,39 +303,80 @@ class EscanerCedulaAntigua:
         cv2.setWindowProperty("Escáner Cédula Antigua", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
         
     def parse_pdf417(self, text):
-        """Parsea el texto del PDF417 de cédula antigua"""
+        # Quitar caracteres no imprimibles
         clean = re.sub(r'[\x00-\x1F\x7F-\x9F]', ' ', text)
+
+        # Quitar palabras "NUL" que vienen del decodificador
         clean = clean.replace("NUL", " ")
-        
+
         data = {}
-        
-        # Buscar patrón de cédula
+
+        # ===============================
+        # DETECCIÓN Y ELIMINACIÓN DE PREFIJO DE 8 DÍGITOS
+        # ===============================
+        # Buscar patrón: 8 dígitos + 10q
+        # 
+        #  dígitos + texto en mayúsculas
         patron_prefijo = r'(\d{8})(\d{10})([A-ZÑÁÉÍÓÚ]+)'
         match_prefijo = re.search(patron_prefijo, clean)
         
         if match_prefijo:
+            # Si encontramos el patrón, extraemos solo los 10 dígitos (cédula) y el texto (apellido)
             cedula_encontrada = match_prefijo.group(2)
-            data["Cédula"] = cedula_encontrada
+            texto_mayusculas = match_prefijo.group(3)
+            
+            # Reemplazar en el texto limpio: eliminamos los 8 dígitos del prefijo
+            # pero mantenemos la cédula y el texto
             clean = clean.replace(match_prefijo.group(1), '', 1)
+            
+            # Guardar la cédula directamente
+            data["Cédula"] = cedula_encontrada
+            cedula = cedula_encontrada
         else:
+            # Si no hay prefijo, buscar el patrón normal de 10 dígitos
             all_10_digits = re.findall(r'(?<!\d)\d{10}(?!\d)', clean)
-            if all_10_digits:
-                data["Cédula"] = all_10_digits[0] if len(all_10_digits) == 1 else all_10_digits[1]
-        
-        # Extraer nombres y apellidos
-        grupos = re.findall(r'\b[A-ZÑÁÉÍÓÚ]{2,}\b', clean)
-        grupos = [g for g in grupos if g not in ["N", "NU", "NUL"]]
-        
+            
+            if len(all_10_digits) >= 2:
+                cedula = all_10_digits[1]
+                data["Cédula"] = cedula
+            elif len(all_10_digits) == 1:
+                cedula = all_10_digits[0]
+                data["Cédula"] = cedula
+            else:
+                data["Cédula"] = None
+                cedula = None
+       
+        # ===============================
+        # 5. Apellidos y nombre
+        # ===============================
+        grupos = []
+        if cedula:
+            # Buscar después de la cédula
+            pos = clean.find(cedula)
+            if pos != -1:
+                tail = clean[pos + len(cedula):]
+                grupos = re.findall(r'\b[A-ZÑÁÉÍÓÚ]{2,}\b', tail)
+                grupos = [g for g in grupos if g not in ["N", "NU", "NUL"]]
+
+        # Si no encontramos grupos después de la cédula o no hay cédula,
+        # buscar en todo el texto
+        if not grupos:
+            grupos = re.findall(r'\b[A-ZÑÁÉÍÓÚ]{2,}\b', clean)
+            grupos = [g for g in grupos if g not in ["N", "NU", "NUL"]]
+
+        # Asignar apellidos y nombre
         if len(grupos) >= 1:
             data["Primer apellido"] = grupos[0]
         if len(grupos) >= 2:
             data["Segundo apellido"] = grupos[1]
         if len(grupos) >= 3:
             data["Nombre"] = grupos[2]
+            
+        # Si tenemos exactamente 2 grupos, asumimos que el segundo es el nombre
         elif len(grupos) == 2:
             data["Nombre"] = grupos[1]
             data["Segundo apellido"] = ""
-        
+
         return clean, data
     
     def iniciar_escaneo(self):
@@ -383,8 +446,8 @@ class EscanerCedulaNueva:
         self.datos_detectados = False
         
         # ROI específico para cédula nueva
-        self.x1, self.y1 = 500, 550
-        self.x2, self.y2 = 1700, 800
+        self.x1, self.y1 = 350, 560
+        self.x2, self.y2 = 1650, 900
         
         self.confianza_minima = 60
         
@@ -412,7 +475,7 @@ class EscanerCedulaNueva:
         
         texto_90 = texto_completo[:90]
         
-        numero_cedula = texto_90[4:58]
+        numero_cedula = texto_90[48:58]
         texto_nombres = texto_90[60:90]
         
         partes = texto_nombres.split('<')
@@ -506,8 +569,7 @@ def main():
     print("1️⃣  Identifica automáticamente si es cédula ANTIGUA o NUEVA")
     print("2️⃣  Muestra pantalla de carga")
     print("3️⃣  Abre el escáner específico según el tipo detectado")
-    print("\nPresione ENTER para comenzar...")
-    input()
+    print("\n" + "="*60)
     
     identificador = IdentificadorCedulas()
     identificador.iniciar_identificacion()
