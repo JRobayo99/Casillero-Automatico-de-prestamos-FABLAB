@@ -105,12 +105,11 @@ class cedula_amarilla:
     print("Resolución real:", cap.get(3), "x", cap.get(4))
 
     # Recuadro
-    x1, y1 = 500, 150
-    x2, y2 = 1700, 800
+    x1, y1 = 350, 50
+    x2, y2 = 1650, 900
 
-    
 
-    
+
 
     # Ajustar la ventana de visualización al tamaño de la pantalla
     root = tk.Tk()
@@ -139,6 +138,7 @@ class cedula_amarilla:
     scan_interval = 0.5  # segundos entre intentos de escaneo
     scan_cooldown_on_detect = 2.0  # segundos de espera tras detectar un código
 
+    detected = False    
     # ===============================
     # Bucle principal
     # ===============================
@@ -157,7 +157,7 @@ class cedula_amarilla:
 
         # Escanear automáticamente cada `scan_interval` segundos
         now = time.time()
-        if now - last_scan_time >= scan_interval:
+        if now - last_scan_time >= scan_interval and not detected:
             last_scan_time = now
 
             cropped = frame[y1:y2, x1:x2]
@@ -179,15 +179,21 @@ class cedula_amarilla:
                     for r in results:
                         print(f"Formato: {r.format}")
                         clean, extracted = parse_pdf417(r.text)
-                        print("\n--- Texto limpio ---")
-                        print(clean)
                         print("\n--- Datos extraídos ---")
                         for k, val in extracted.items():
                             print(f"{k}: {val}")
                         print("\n")
 
+                        if extracted.get("Cédula") and extracted.get("Primer apellido"):
+                            detected = True
+                            print("Cédula detectada con éxito. Cerrando escaner...")
+
                     # Aplicar cooldown mayor tras una detección para evitar repeticiones
+                if not detected:
                     last_scan_time = time.time() + scan_cooldown_on_detect
+
+        if detected:
+            break
 
         if key == 27:  # ESC
             break

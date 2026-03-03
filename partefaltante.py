@@ -149,7 +149,11 @@ class DetectorCedula:
         
         # Extraer número de cédula (posiciones 47-57, 10 dígitos)
         # Nota: Python usa indexación 0-based, por lo que posición 47 es índice 47
-        numero_cedula = texto_90[47:58]  # Hasta posición 57 inclusive (10 caracteres)
+        
+        
+        
+        
+        numero_cedula = texto_90[4:58]  # Hasta posición 57 inclusive (10 caracteres)
         
         # Extraer texto de posiciones 60-89 (30 caracteres)
         texto_nombres = texto_90[60:90]
