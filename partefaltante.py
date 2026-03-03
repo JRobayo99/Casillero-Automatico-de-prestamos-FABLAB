@@ -21,8 +21,8 @@ class DetectorCedula:
         self.datos_detectados = False  # Bandera para controlar si ya se detectaron los 90 caracteres
         
         # Coordenadas del recuadro de interés
-        self.x1, self.y1 = 500, 550
-        self.x2, self.y2 = 1700, 800
+        self.x1, self.y1 = 350, 560
+        self.x2, self.y2 = 1650, 900
         
         # Dimensiones de pantalla
         self.screen_w = 1920
@@ -153,7 +153,7 @@ class DetectorCedula:
         
         
         
-        numero_cedula = texto_90[4:58]  # Hasta posición 57 inclusive (10 caracteres)
+        numero_cedula = texto_90[48:58]  # Hasta posición 57 inclusive (10 caracteres)
         
         # Extraer texto de posiciones 60-89 (30 caracteres)
         texto_nombres = texto_90[60:90]
