@@ -1,10 +1,15 @@
-# Proyecto de casillero de FABLAB. 🗂️​​📋​​🧰​​
+# Proyecto de Casillero Automático de Prestamos de FABLAB. 🗂️​​📋​​🧰​​
 
 ## Introducción:
 
 El proposito de la automatización de procesos es beneficiar la porductividad y calidad de vida de los colaboradores, cuando se realicen prestamos de herramientas,
 en si los tableros de automáticos no solo tienen un uso de préstamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
 casillero automático de préstamos para el FABLAB, es utiliza una serie de tecnológias asociadas entre si para dar una mejor experiencia al usuario final que es el estudiante.
+
+Los archivos .py son los siguientes.
+
+Para lectura y reconocimeinto de cédulas es --> "Identicadorcédulas.py"
+Para control de mcp23017 y tira leds son --> "main.py (Control de segmetnosde tira led)", "led_control (para contorlar birllo y tiras)", mcp
  
 # Especificaciones técnicas. ⚙️🛠️
 
@@ -16,12 +21,12 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 - Pantalla touch de (1024x600) 🖥️​
 - Cámara web de alta definición con enfoque manual (1920x1080) 📷​
 - Cámara web cam con autoenfoque 📷​ 
-- Solenoides
-- Módulo rele 5V -12
+- Solenoides 5V - 12V
+- Módulo rele 5V - 12V
 
 ### Software. 💻👨‍💻​​👩‍💻​​​
-- Python version 3.10 🐍​
-- Rapios arm_g4 (Bullseye-arm64) --> descargar aquí ( https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2023-05-03/ )
+- Python version 3.9.2 🐍​
+- Raspios arm_g4 (Bullseye-arm64) --> descargar aquí ( https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2023-05-03/ )
 #### Librerías de Python. 🗂️​🐍​
   - Zxingcpp (Lector de código de barras)
   - Opencv (procesador de imagenes)
@@ -30,6 +35,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
   - Pandas (Gestión de base de datos)
   - IC2 (IC2 tools, IC2-dev, IC2-bcm2835)
   - Módulo MCP23017IO (0X23 0X25 0X26 0X27)
+  - Tesseract OCR --> (pytesseract)
     
 ## Diagrama flujo. 🔁​​🔀
 
