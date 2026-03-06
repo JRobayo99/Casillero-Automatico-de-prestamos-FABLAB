@@ -302,7 +302,7 @@ class EscanerCedulaAntigua:
         self.resultado_window = None
         
         # ROI específico para cédula antigua
-        self.x1, self.y1 = 350, 50
+        self.x1, self.y1 = 350, 60
         self.x2, self.y2 = 1650, 900
         
         self.last_scan_time = 0.0
@@ -591,8 +591,8 @@ class EscanerCedulaNueva:
         self.resultado_window = None
         
         # ROI específico para cédula nueva
-        self.x1, self.y1 = 350, 560
-        self.x2, self.y2 = 1650, 900
+        self.x1, self.y1 = 350, 580
+        self.x2, self.y2 = 1600, 900
         
         self.confianza_minima = 60
         

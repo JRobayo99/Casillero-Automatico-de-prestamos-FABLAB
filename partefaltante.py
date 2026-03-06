@@ -21,8 +21,8 @@ class DetectorCedula:
         self.datos_detectados = False  # Bandera para controlar si ya se detectaron los 90 caracteres
         
         # Coordenadas del recuadro de interés
-        self.x1, self.y1 = 350, 560
-        self.x2, self.y2 = 1650, 900
+        self.x1, self.y1 = 350, 580
+        self.x2, self.y2 = 1600, 900
         
         # Dimensiones de pantalla
         self.screen_w = 1920
