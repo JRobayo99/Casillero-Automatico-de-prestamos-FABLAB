@@ -5,6 +5,11 @@
 El proposito de la automatización de procesos es beneficiar la porductividad y calidad de vida de los colaboradores, cuando se realicen prestamos de herramientas,
 en si los tableros de automáticos no solo tienen un uso de préstamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
 casillero automático de préstamos para el FABLAB, es utiliza una serie de tecnológias asociadas entre si para dar una mejor experiencia al usuario final que es el estudiante.
+
+Los archivos .py son los siguientes.
+
+Para lectura y reconocimeinto de cédulas es --> "Identicadorcédulas.py"
+Para control de mcp23017 y tira leds son --> "main.py (Control de segmetnosde tira led)", "led_control (para contorlar birllo y tiras)", mcp
  
 # Especificaciones técnicas. ⚙️🛠️
 
