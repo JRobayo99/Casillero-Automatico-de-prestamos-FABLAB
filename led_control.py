@@ -2,9 +2,10 @@ from rpi_ws281x import PixelStrip, Color
 import sys
 
 
+# Configuración de los LEDs
+
 LED_COUNT = 20
 SECTIONS = 1
-
 LED_PIN = 18
 LED_FREQ_HZ = 800000
 LED_DMA = 10
@@ -21,6 +22,8 @@ strip = PixelStrip(LED_COUNT,
                    LED_CHANNEL
                    )
 strip.begin()
+
+#Configuración de secciones
 
 def section_range(section):
     base = LED_COUNT // SECTIONS
