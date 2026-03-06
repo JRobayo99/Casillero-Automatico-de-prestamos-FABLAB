@@ -16,8 +16,8 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 - Pantalla touch de (1024x600) 🖥️​
 - Cámara web de alta definición con enfoque manual (1920x1080) 📷​
 - Cámara web cam con autoenfoque 📷​ 
-- Solenoides
-- Módulo rele 5V -12
+- Solenoides 5V - 12V
+- Módulo rele 5V - 12V
 
 ### Software. 💻👨‍💻​​👩‍💻​​​
 - Python version 3.9.2 🐍​
