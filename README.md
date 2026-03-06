@@ -30,7 +30,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
   - Pandas (Gestión de base de datos)
   - IC2 (IC2 tools, IC2-dev, IC2-bcm2835)
   - Módulo MCP23017IO (0X23 0X25 0X26 0X27)
-  - Tesseract --> (pytesseract)
+  - Tesseract OCR --> (pytesseract)
     
 ## Diagrama flujo. 🔁​​🔀
 
