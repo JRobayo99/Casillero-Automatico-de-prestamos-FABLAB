@@ -21,7 +21,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 
 ### Software. 💻👨‍💻​​👩‍💻​​​
 - Python version 3.9.2 🐍​
-- Rapios arm_g4 (Bullseye-arm64) --> descargar aquí ( https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2023-05-03/ )
+- Raspios arm_g4 (Bullseye-arm64) --> descargar aquí ( https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2023-05-03/ )
 #### Librerías de Python. 🗂️​🐍​
   - Zxingcpp (Lector de código de barras)
   - Opencv (procesador de imagenes)
