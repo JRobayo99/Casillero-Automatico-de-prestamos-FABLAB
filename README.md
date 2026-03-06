@@ -20,7 +20,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
 - Módulo rele 5V -12
 
 ### Software. 💻👨‍💻​​👩‍💻​​​
-- Python version 3.10 🐍​
+- Python version 3.9.2 🐍​
 - Rapios arm_g4 (Bullseye-arm64) --> descargar aquí ( https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2023-05-03/ )
 #### Librerías de Python. 🗂️​🐍​
   - Zxingcpp (Lector de código de barras)
@@ -30,6 +30,7 @@ casillero automático de préstamos para el FABLAB, es utiliza una serie de tecn
   - Pandas (Gestión de base de datos)
   - IC2 (IC2 tools, IC2-dev, IC2-bcm2835)
   - Módulo MCP23017IO (0X23 0X25 0X26 0X27)
+  - Tesseract --> (pytesseract)
     
 ## Diagrama flujo. 🔁​​🔀
 
