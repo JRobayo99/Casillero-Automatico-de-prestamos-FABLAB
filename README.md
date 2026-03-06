@@ -1,4 +1,4 @@
-# Proyecto de casillero de FABLAB. 🗂️​​📋​​🧰​​
+# Proyecto de Casillero Automático de Prestamos de FABLAB. 🗂️​​📋​​🧰​​
 
 ## Introducción:
 
