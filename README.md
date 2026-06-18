@@ -2,8 +2,8 @@
 
 ## Introducción:
 
-El proposito de la automatización de procesos es beneficiar la porductividad y calidad de vida de los colaboradores, cuando se realicen prestamos de herramientas,
-en si los tableros de automáticos no solo tienen un uso de préstamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
+El proposito de la automatización de procesos es beneficiar la productividad y calidad de vida de los colaboradores, cuando se realicen prestamos de herramientas,
+en si los casilleros de automáticos no solo tienen un uso de préstamo si no también en usos comerciales como uso alternitvo principal, este programa hacer parte de un proyecto de naturaleza similar,
 casillero automático de préstamos para el FABLAB, es utiliza una serie de tecnológias asociadas entre si para dar una mejor experiencia al usuario final que es el estudiante.
 
 Los archivos .py son los siguientes.
